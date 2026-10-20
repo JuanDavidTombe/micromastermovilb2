@@ -1,0 +1,13 @@
+{
+  "name": "micromaster",
+  "version": "2.4.1",
+  "scripts": {
+    "dev": "concurrently \"cd backend && php artisan serve --host=0.0.0.0 --port=8000\" \"cd frontend && npm run dev\"",
+    "dev:backend": "cd backend && php artisan serve --host=0.0.0.0 --port=8000",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install": "cd backend && composer install && cd ../frontend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

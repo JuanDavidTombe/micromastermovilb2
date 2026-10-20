@@ -1,0 +1,159 @@
+<mxfile host="app.diagrams.net" modified="2026-10-06T00:00:00.000Z" agent="Micromaster" version="24.7.7" type="device">
+  <diagram id="arquitectura-real" name="Micromaster - Arquitectura Real">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1250" math="0" shadow="0" backgroundColor="#1E1E1E">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1E1E1E;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="1600" height="1250" as="geometry" />
+        </mxCell>
+        <mxCell id="t1" value="MICROMASTER — ARQUITECTURA REAL &#183; Laravel API (backend/) + React Web / Expo (frontend/)" style="text;html=1;align=left;verticalAlign=middle;fontSize=18;fontStyle=1;fontColor=#F5F5F5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1200" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" value="5 áreas de izquierda a derecha: Rutas → Controladores → Modelos → Base de Datos · cliente API abajo al centro · lienzo modo oscuro #1E1E1E" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;fontColor=#9CA3AF;" vertex="1" parent="1">
+          <mxGeometry x="40" y="50" width="1100" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="g1" value="1 &#183; ÁREA DE RUTAS&#10;routes/api.php — 67 rutas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#252526;strokeColor=#3F3F46;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=8;fontColor=#E5E7EB;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="310" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="r1" value="PÚBLICAS (sin token)&#10;POST /auth/register &#8592; throttle:10,1 → crea PENDING&#10;POST /auth/login &#8594; devuelve token Bearer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2B1818;strokeColor=#7F1D1D;fontColor=#F5C2C0;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="55" y="140" width="280" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" value="Pipeline: auth:sanctum → write.guard (todo /api)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F2937;strokeColor=#4B5563;fontColor=#93C5FD;fontSize=10;align=left;spacingLeft=8;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="55" y="214" width="280" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="r3" value="INVENTARIO &amp; STOCK — inventory_stock&#10;GET /stock/batches · alerts · ingredients&#10;POST /stock/batches · entry · exit&#10;POST /stock/qr-scan &#8592; QR de lote (móvil)&#10;lectura extra: SUPERVISOR_PRODUCCION" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2B1818;strokeColor=#7F1D1D;fontColor=#F5C2C0;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="55" y="256" width="280" height="96" as="geometry" />
+        </mxCell>
+        <mxCell id="r4" value="RECETAS &amp; PRODUCCIÓN — recipes_production&#10;GET|POST|PATCH|DELETE /cost/recipes&#10;POST /cost/simulate-scale &#8592; escala y mermas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2B1818;strokeColor=#7F1D1D;fontColor=#F5C2C0;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="55" y="362" width="280" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="r5" value="PEDIDOS &amp; ENTREGAS — orders_delivery&#10;GET|POST /delivery/routes · /delivery/orders · /orders&#10;POST /delivery/verify-otp &#8592; validación OTP / cobro&#10;POST /delivery/location &#8592; GPS conductor&#10;POST|PATCH /delivery/incidents · update-payment&#10;roles: ADMINISTRADOR · OPERARIO_LOGISTICO · TRANSPORTISTA" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2B1818;strokeColor=#7F1D1D;fontColor=#F5C2C0;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="55" y="438" width="280" height="132" as="geometry" />
+        </mxCell>
+        <mxCell id="r6" value="REPORTES · ADMIN — otros módulos&#10;GET /reports/* → reports_simulations&#10;/settings/users · /admin/pending-users" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2B1818;strokeColor=#7F1D1D;fontColor=#F5C2C0;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="55" y="580" width="280" height="68" as="geometry" />
+        </mxCell>
+        <mxCell id="r7" value="MATRIZ RBAC — 5 roles&#10;ADMINISTRADOR · OPERARIO_LOGISTICO&#10;SUPERVISOR_PRODUCCION · CONTADOR&#10;TRANSPORTISTA → solo sus asignaciones" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#33201A;strokeColor=#B45309;fontColor=#FDE0B2;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="55" y="660" width="280" height="76" as="geometry" />
+        </mxCell>
+
+        <mxCell id="g2" value="2 &#183; ÁREA DE CONTROLADORES&#10;app/Http/Controllers/ — 10 archivos" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#252526;strokeColor=#3F3F46;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=8;fontColor=#E5E7EB;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="100" width="310" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="hc1" value="MicroStockController.php" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3F2A18;strokeColor=#9A3412;fontColor=#FDD9B2;fontSize=11;fontStyle=1;align=left;spacingLeft=8;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="415" y="142" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="bc1" value="index() → lotes paginados + estado FEFO&#10;store() → alta de lote (201) · qrScan() → QR conectado&#10;entry() / exit() → movimientos de stock" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2B1E12;strokeColor=#9A3412;fontColor=#FDD9B2;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="415" y="168" width="280" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="hc2" value="OrderController.php" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3F2A18;strokeColor=#9A3412;fontColor=#FDD9B2;fontSize=11;fontStyle=1;align=left;spacingLeft=8;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="415" y="268" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="bc2" value="index() → /orders paginados; filtra por driver_id&#10;(el TRANSPORTISTA solo ve sus asignaciones)&#10;store() → registro con status, devuelve 201" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2B1E12;strokeColor=#9A3412;fontColor=#FDD9B2;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="415" y="294" width="280" height="84" as="geometry" />
+        </mxCell>
+        <mxCell id="hc3" value="MicroDeliveryController.php" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3F2A18;strokeColor=#9A3412;fontColor=#FDD9B2;fontSize=11;fontStyle=1;align=left;spacingLeft=8;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="415" y="388" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="bc3" value="verifyOtp() → valida otp_code y completa el cobro&#10;completePayment() / updatePayment() → efectivo + QR&#10;orders() → /delivery/orders asignados al conductor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2B1E12;strokeColor=#9A3412;fontColor=#FDD9B2;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="415" y="414" width="280" height="96" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" value="Otros 7 controladores&#10;Auth · Admin · Dashboard · Logistics&#10;MicroCost · Report · Profile&#10;$request-validate() + response()-&gt;json()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2B1E12;strokeColor=#9A3412;fontColor=#FDD9B2;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="415" y="520" width="280" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="c5" value="Sin capa de Servicios: los controladores hablan con Eloquent directamente (no hay Repository ni Service)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2A2410;strokeColor=#A16207;fontColor=#FDE9B0;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="415" y="620" width="280" height="96" as="geometry" />
+        </mxCell>
+
+        <mxCell id="g3" value="3 &#183; ÁREA DE MODELOS Y SCOPES&#10;app/Models/ — 10 modelos" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#252526;strokeColor=#3F3F46;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=8;fontColor=#E5E7EB;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="760" y="100" width="300" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="hm1" value="Order.php — orden de entrega" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#123044;strokeColor=#0E7490;fontColor=#C9E7F7;fontSize=11;fontStyle=1;align=left;spacingLeft=8;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="775" y="142" width="270" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="bm1" value="route() → belongsTo(Route)&#10;driver() → belongsTo(User, driver_id)&#10;incidents() → hasMany(DeliveryIncident)&#10;fillable: route_id · driver_id · otp_code&#10;payment_method · payment_status · status&#10;appends: payment_status_label" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10222F;strokeColor=#0E7490;fontColor=#C9E7F7;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="775" y="168" width="270" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="m2" value="SCOPES / AISLAMIENTO DE DATOS&#10;No existen Local Scopes (scopeAplicaUser)&#10;el aislamiento por rol se aplica en middleware&#10;(role + module.permission) y en el controlador&#10;filtrando por driver_id del token autenticado" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2A2410;strokeColor=#A16207;fontColor=#FDE9B0;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="775" y="298" width="270" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="m3" value="Modelos restantes (RBAC + dominios)&#10;User → ROLE_PERMISSIONS (fuente única RBAC)&#10;Batch → lotes + trazas QR / FEFO&#10;Ingredient · Recipe · RecipeIngredient&#10;Route → rutas · DriverLocation → GPS&#10;DeliveryIncident → novedades&#10;CompanySetting → config B2B" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10222F;strokeColor=#0E7490;fontColor=#C9E7F7;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="775" y="398" width="270" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="m4" value="DÓNDE VIVE EL RBAC&#10;User::ROLE_PERMISSIONS (fuente única)&#10;+ 3 capas de middleware: write.guard&#10;global · role · module.permission" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#123044;strokeColor=#0E7490;fontColor=#C9E7F7;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="775" y="548" width="270" height="96" as="geometry" />
+        </mxCell>
+
+        <mxCell id="g4" value="5 &#183; ÁREA DE BASE DE DATOS&#10;MySQL / MariaDB 10.4 — database: micromaster" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#252526;strokeColor=#3F3F46;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=8;fontColor=#E5E7EB;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="100" width="450" height="660" as="geometry" />
+        </mxCell>
+        <mxCell id="dbio" value="Eloquent ORM → driver de conexión (config/database.php)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B2A24;strokeColor=#15803D;fontColor=#C3ECD4;fontSize=10;align=left;spacingLeft=8;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1125" y="142" width="420" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ht" value="orders — entidad de orden de entrega" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#11352C;strokeColor=#15803D;fontColor=#D3F4DE;fontSize=11;fontStyle=1;align=left;spacingLeft=8;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1125" y="186" width="420" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="bt" value="id  (PK)&#10;route_id (FK → routes.id) · driver_id (FK → users.id)&#10;destination · latitude · longitude&#10;client_name&#10;otp_code &#8592; validación OTP del cobro en destino&#10;payment_method: efectivo | QR&#10;payment_status: pending · confirmed · completed · refunded&#10;status: pending · assigned · in_transit · delivered · cancelled&#10;amount · received_amount · change_due" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B2A24;strokeColor=#15803D;fontColor=#C3ECD4;fontSize=10;align=left;spacingLeft=10;verticalAlign=top;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="1125" y="220" width="420" height="292" as="geometry" />
+        </mxCell>
+        <mxCell id="dbn" value="Resto de tablas (11)&#10;users · routes · batches · ingredients · recipes&#10;recipe_ingredients · driver_locations · delivery_incidents&#10;company_settings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B2A24;strokeColor=#15803D;fontColor=#C3ECD4;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="1125" y="522" width="420" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="dbnote" value="Conector y esquema&#10;9 migraciones + DatabaseSeeder&#10;dump completo → database/micromaster.sql" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0B2A24;strokeColor=#15803D;fontColor=#C3ECD4;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="1125" y="622" width="420" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="g5" value="4 &#183; ÁREA DE CLIENTE API FRONTEND&#10;frontend/src/services/api.js — React Web + React Native / Expo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#252526;strokeColor=#3F3F46;dashed=1;verticalAlign=top;align=left;spacingLeft=12;spacingTop=8;fontColor=#E5E7EB;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="400" y="840" width="660" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="ca" value="const api = axios.create({ baseURL: &#39;/api&#39; })  &#8592; API_BASE&#10;request interceptor → Authorization: Bearer (localStorage · micromaster_token)&#10;response interceptor → 401: limpia token y redirige a /login&#10;funciones de consumo:&#10;auth.login · stock.qrScan · delivery.verifyOtp · orders.create&#10;admin.getPendingUsers · reports.get · delivery.sendLocation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0C2430;strokeColor=#0E7490;fontColor=#C9ECF9;fontSize=10;align=left;spacingLeft=10;verticalAlign=top;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="415" y="884" width="630" height="146" as="geometry" />
+        </mxCell>
+        <mxCell id="cweb" value="React Web — SPA 18 (micromaster.test)&#10;token → localStorage (micromaster_token)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#10303A;strokeColor=#0369A1;fontColor=#7DD3FC;fontSize=10;align=left;spacingLeft=8;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="415" y="1040" width="300" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="cmov" value="React Native / Expo (planeada)&#10;mismo services/api.js · token → SecureStore" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0F2A1E;strokeColor=#15803D;fontColor=#6EE7B7;fontSize=10;align=left;spacingLeft=8;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="745" y="1040" width="300" height="46" as="geometry" />
+        </mxCell>
+        <mxCell id="cnote" value="No existe la clase ApiError: los errores se gestionan con interceptores de axios y try/catch en cada página" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2A2410;strokeColor=#A16207;fontColor=#FDE9B0;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="415" y="1096" width="630" height="46" as="geometry" />
+        </mxCell>
+
+        <mxCell id="lg" value="CONVENCIONES&#10;&#8226; Rutas protegidas: todo /api pasa por auth:sanctum → write.guard&#10;&#8226; Flujo: cliente → rutas → controlador → Eloquent → MySQL&#10;&#8226; El aislamiento por rol NO es un scope: es middleware RBAC&#10;&#8226; React Web y el futuro Expo comparten el mismo services/api.js" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F2937;strokeColor=#4B5563;fontColor=#D1D5DB;fontSize=10;align=left;spacingLeft=12;verticalAlign=top;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="820" width="430" height="160" as="geometry" />
+        </mxCell>
+      <mxCell id="e1" value="1. peticiones HTTP /api/…  ·  JSON + Bearer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#61DAFB;fontColor=#7DD3FC;fontSize=10;labelBackgroundColor=#1E1E1E;verticalLabelPosition=top;verticalAlign=bottom;exitX=0.4;exitY=0;entryX=0.5;entryY=1;endArrow=block;endFill=1;" edge="1" parent="1" source="g5" target="g1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="664" y="795" />
+              <mxPoint x="195" y="795" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" value="/stock/*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#F87171;fontColor=#FCA5A5;fontSize=10;labelBackgroundColor=#1E1E1E;exitX=1;exitY=0.176;entryX=0;entryY=0.533;endArrow=block;endFill=1;" edge="1" parent="1" source="g1" target="bc1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#F87171;exitX=1;exitY=0.358;entryX=0;entryY=0.5;endArrow=block;endFill=1;" edge="1" parent="1" source="g1" target="bc2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#F87171;exitX=1;exitY=0.549;entryX=0;entryY=0.5;endArrow=block;endFill=1;" edge="1" parent="1" source="g1" target="bc3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="Eloquent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#FB923C;fontColor=#FDBA74;fontSize=10;labelBackgroundColor=#1E1E1E;exitX=1;exitY=0.5;entryX=0;entryY=0.5;endArrow=block;endFill=1;" edge="1" parent="1" source="g2" target="g3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="SQL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#34D399;fontColor=#6EE7B7;fontSize=10;labelBackgroundColor=#1E1E1E;exitX=1;exitY=0.5;entryX=0;entryY=0.5;endArrow=block;endFill=1;" edge="1" parent="1" source="g3" target="g4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#64748B;fontSize=10;dashed=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;endArrow=block;endFill=1;" edge="1" parent="1" source="bm1" target="m2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#64748B;fontSize=10;dashed=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;endArrow=block;endFill=1;" edge="1" parent="1" source="m2" target="m3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

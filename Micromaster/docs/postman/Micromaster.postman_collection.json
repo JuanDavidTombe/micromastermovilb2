@@ -1,0 +1,481 @@
+{
+  "info": {
+    "name": "Micromaster B2B · API Local",
+    "description": "Colección lista para ejecutar contra el backend Laravel de Micromaster.\n\nUso:\n1. Importa este archivo y el environment 'Micromaster Local'.\n2. Selecciona el environment arriba a la derecha.\n3. Ejecuta la carpeta '01 · Autenticación' con 'Run collection': guardará automáticamente un token por rol.\n4. Prueba las carpetas 02/03 (lectura/escritura) y 04 (demo RBAC por rol).\n\nRequiere Apache y MySQL de XAMPP arriba y el vhost http://micromaster.test.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "b7a1c2d3-2222-4a2b-9c3d-000000000002"
+  },
+  "item": [
+    {
+      "name": "01 · Autenticación (genera tokens)",
+      "item": [
+        {
+          "name": "Login ADMINISTRADOR",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('adminToken', json.token);",
+                  "pm.environment.set('token', json.token);",
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Rol = ADMINISTRADOR', () => pm.expect(json.user.role).to.eql('ADMINISTRADOR'));",
+                  "console.log('admin role_permissions:', JSON.stringify(json.user.role_permissions));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@micromaster.com\",\n  \"password\": \"admin123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Login OPERARIO LOGISTICO",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('operarioToken', json.token);",
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Rol = OPERARIO_LOGISTICO', () => pm.expect(json.user.role).to.eql('OPERARIO_LOGISTICO'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"logistica@micromaster.com\",\n  \"password\": \"logistica123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Login SUPERVISOR PRODUCCION",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('produccionToken', json.token);",
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Rol = SUPERVISOR_PRODUCCION', () => pm.expect(json.user.role).to.eql('SUPERVISOR_PRODUCCION'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"produccion@micromaster.com\",\n  \"password\": \"produccion123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Login CONTADOR",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('contadorToken', json.token);",
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Rol = CONTADOR', () => pm.expect(json.user.role).to.eql('CONTADOR'));",
+                  "console.log('contador role_permissions:', JSON.stringify(json.user.role_permissions));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"contabilidad@micromaster.com\",\n  \"password\": \"contabilidad123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "Login TRANSPORTISTA",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.environment.set('driverToken', json.token);",
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Rol = TRANSPORTISTA', () => pm.expect(json.user.role).to.eql('TRANSPORTISTA'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"conductor1@micromaster.com\",\n  \"password\": \"conductor123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+          }
+        },
+        {
+          "name": "¿Quién soy? (me)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "console.log('rol:', json.user.role, '| modulos:', JSON.stringify(json.user.modules));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 · Inventario & Stock (lectura)",
+      "item": [
+        {
+          "name": "Listar Lotes FEFO",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const s = pm.response.json().summary;",
+                  "console.log('ocupacion:', s.occupancy + '%', '| bajo minimo:', s.low_stock.length, '| quiebre:', s.rupture.length);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stock/batches",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stock", "batches"]
+            }
+          }
+        },
+        {
+          "name": "Alertas de vencimiento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "console.log('criticos:', j.critical_count, '| por vencer:', j.warning_count);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/stock/alerts", "host": ["{{baseUrl}}"], "path": ["api", "stock", "alerts"] }
+          }
+        },
+        {
+          "name": "Stock por insumo",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/stock/ingredients", "host": ["{{baseUrl}}"], "path": ["api", "stock", "ingredients"] }
+          }
+        },
+        {
+          "name": "Cruce Orden de Compra (OC-2026-001)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('OC encontrada', () => pm.expect(j.found).to.be.true);",
+                  "console.log('proveedor:', j.purchase_order.supplier_name, '| items:', j.purchase_order.items.length);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stock/purchase-orders/OC-2026-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stock", "purchase-orders", "OC-2026-001"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 · Inventario & Stock (escritura)",
+      "item": [
+        {
+          "name": "Entrada de Stock (Calidad OK)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "const j = pm.response.json();",
+                  "pm.environment.set('batchId', j.batch.id);",
+                  "console.log('lote creado:', j.batch.batch_code, '| zona:', j.batch.storage_zone);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ingredient_id\": 1,\n  \"batch_code\": \"POSTMAN-{{$timestamp}}\",\n  \"supplier_name\": \"Proveedor Postman S.A.\",\n  \"quantity\": 25,\n  \"expiration_date\": \"2027-06-30\",\n  \"storage_zone\": \"A-01\",\n  \"purchase_order_code\": \"OC-2026-001\",\n  \"quality_checklist\": {\n    \"temperature\": true,\n    \"packaging\": true,\n    \"labeling\": true,\n    \"sanitary_registry\": true\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/api/stock/entry", "host": ["{{baseUrl}}"], "path": ["api", "stock", "entry"] }
+          }
+        },
+        {
+          "name": "Entrada rechazada por Calidad (422)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('422 Unprocessable', () => pm.response.to.have.status(422));",
+                  "pm.test('Motivo = QUALITY_REJECTED', () => pm.expect(pm.response.json().error).to.eql('QUALITY_REJECTED'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ingredient_id\": 1,\n  \"batch_code\": \"POSTMAN-FAIL-{{$timestamp}}\",\n  \"quantity\": 5,\n  \"expiration_date\": \"2027-06-30\",\n  \"storage_zone\": \"A-01\",\n  \"quality_checklist\": {\n    \"temperature\": true,\n    \"packaging\": false,\n    \"labeling\": true,\n    \"sanitary_registry\": true\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/api/stock/entry", "host": ["{{baseUrl}}"], "path": ["api", "stock", "entry"] }
+          }
+        },
+        {
+          "name": "Bloquear Lote (cuarentena)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Lote en cuarentena', () => pm.expect(j.batch.is_quarantined).to.eql(true));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_quarantined\": true,\n  \"quarantine_reason\": \"Prueba Postman: empaque danado\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/stock/batches/{{batchId}}/block",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stock", "batches", "{{batchId}}", "block"]
+            }
+          }
+        },
+        {
+          "name": "Liberar Lote (quitar cuarentena)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "const j = pm.response.json();",
+                  "pm.test('Lote liberado', () => pm.expect(j.batch.is_quarantined).to.eql(false));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_quarantined\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/stock/batches/{{batchId}}/block",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stock", "batches", "{{batchId}}", "block"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 · Demo RBAC (permisos por rol)",
+      "item": [
+        {
+          "name": "OPERARIO escribe stock (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 - OPERARIO puede crear', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{operarioToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ingredient_id\": 1,\n  \"batch_code\": \"POSTMAN-OP-{{$timestamp}}\",\n  \"quantity\": 10,\n  \"expiration_date\": \"2027-06-30\",\n  \"storage_zone\": \"A-01\",\n  \"quality_checklist\": {\n    \"temperature\": true,\n    \"packaging\": true,\n    \"labeling\": true,\n    \"sanitary_registry\": true\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/api/stock/entry", "host": ["{{baseUrl}}"], "path": ["api", "stock", "entry"] }
+          }
+        },
+        {
+          "name": "CONTADOR intenta escribir (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('403 - WriteGuard bloquea escritura', () => pm.response.to.have.status(403));",
+                  "pm.test('Permiso requerido = create', () => pm.expect(pm.response.json().required_permission).to.eql('create'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{contadorToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ingredient_id\": 1,\n  \"batch_code\": \"POSTMAN-CONTADOR-{{$timestamp}}\",\n  \"quantity\": 1,\n  \"expiration_date\": \"2027-06-30\",\n  \"storage_zone\": \"A-01\",\n  \"quality_checklist\": {\n    \"temperature\": true,\n    \"packaging\": true,\n    \"labeling\": true,\n    \"sanitary_registry\": true\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/api/stock/entry", "host": ["{{baseUrl}}"], "path": ["api", "stock", "entry"] }
+          }
+        },
+        {
+          "name": "CONTADOR intenta ver stock (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('403 - modulo no autorizado', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{contadorToken}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/stock/batches", "host": ["{{baseUrl}}"], "path": ["api", "stock", "batches"] }
+          }
+        },
+        {
+          "name": "SUPERVISOR lee stock (200, solo lectura)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 - read_module inventory_stock', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{produccionToken}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/stock/batches", "host": ["{{baseUrl}}"], "path": ["api", "stock", "batches"] }
+          }
+        }
+      ]
+    }
+  ]
+}
