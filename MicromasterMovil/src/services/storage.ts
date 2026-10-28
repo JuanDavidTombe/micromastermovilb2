@@ -17,6 +17,7 @@ function createStringStorage(key: string) {
 }
 
 export const tokenStorage = createStringStorage(STORAGE_KEYS.token);
+export const serverUrlStorage = createStringStorage('@micromaster/settings/server_url');
 
 export const userStorage = {
   get: async (): Promise<User | null> => {

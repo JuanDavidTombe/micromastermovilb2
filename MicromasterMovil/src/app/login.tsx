@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
-import { useState } from 'react';
+import { Link, router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 
@@ -16,6 +17,12 @@ import { Screen } from '@/components/Screen';
 import { TextField } from '@/components/TextField';
 import { colors, radius, spacing } from '@/constants/theme';
 import { useSession } from '@/context/AuthContext';
+import {
+  getActiveApiBaseUrl,
+  pingBackend,
+  resetCustomApiBaseUrl,
+  setCustomApiBaseUrl,
+} from '@/services/api';
 import { getApiErrorMessage, getApiValidationErrors } from '@/utils/errors';
 
 export default function LoginScreen() {
@@ -26,6 +33,37 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const [serverUrl, setServerUrl] = useState('');
+  const [showServerConfig, setShowServerConfig] = useState(false);
+  const [serverPingStatus, setServerPingStatus] = useState<'idle' | 'checking' | 'ok' | 'error'>('idle');
+  const [serverPingMessage, setServerPingMessage] = useState<string>('');
+
+  useEffect(() => {
+    let active = true;
+    getActiveApiBaseUrl().then((url) => {
+      if (!active) return;
+      setServerUrl(url);
+      setServerPingStatus('checking');
+      pingBackend(url).then((res) => {
+        if (!active) return;
+        setServerPingStatus(res.ok ? 'ok' : 'error');
+        setServerPingMessage(res.message);
+      });
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const handleSaveServerUrl = async () => {
+    if (!serverUrl.trim()) return;
+    setServerPingStatus('checking');
+    await setCustomApiBaseUrl(serverUrl.trim());
+    const res = await pingBackend(serverUrl.trim());
+    setServerPingStatus(res.ok ? 'ok' : 'error');
+    setServerPingMessage(res.message);
+  };
 
   const onSubmit = async () => {
     const errors: Record<string, string> = {};
@@ -40,6 +78,7 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await signIn(email.trim(), password);
+      router.replace('/(tabs)');
     } catch (err) {
       setError(getApiErrorMessage(err));
       setFieldErrors(getApiValidationErrors(err));
@@ -101,12 +140,127 @@ export default function LoginScreen() {
               onChangeText={setPassword}
             />
 
+            <View style={styles.quickRoles}>
+              <Text style={styles.quickRolesLabel}>Acceso rápido:</Text>
+              <View style={styles.quickRolesRow}>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={styles.quickRoleChip}
+                  onPress={() => {
+                    setEmail('conductor1@micromaster.com');
+                    setPassword('conductor123');
+                    setFieldErrors({});
+                    setError(null);
+                  }}
+                >
+                  <Text style={styles.quickRoleText}>🚛 Conductor</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={styles.quickRoleChip}
+                  onPress={() => {
+                    setEmail('logistica@micromaster.com');
+                    setPassword('logistica123');
+                    setFieldErrors({});
+                    setError(null);
+                  }}
+                >
+                  <Text style={styles.quickRoleText}>📦 Operario</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  style={styles.quickRoleChip}
+                  onPress={() => {
+                    setEmail('admin@micromaster.com');
+                    setPassword('admin123');
+                    setFieldErrors({});
+                    setError(null);
+                  }}
+                >
+                  <Text style={styles.quickRoleText}>👔 Admin</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
             <AppButton
               icon="log-in-outline"
               loading={loading}
               title="Entrar"
               onPress={onSubmit}
             />
+
+            <TouchableOpacity
+              activeOpacity={0.7}
+              style={styles.serverInfoBar}
+              onPress={() => setShowServerConfig(!showServerConfig)}
+            >
+              <View
+                style={[
+                  styles.statusDot,
+                  serverPingStatus === 'ok'
+                    ? styles.statusDotOk
+                    : serverPingStatus === 'checking'
+                      ? styles.statusDotChecking
+                      : styles.statusDotError,
+                ]}
+              />
+              <Text numberOfLines={1} style={styles.serverInfoText}>
+                {serverUrl || 'Detectando servidor...'}
+              </Text>
+              <Ionicons
+                color={colors.textMuted}
+                name={showServerConfig ? 'chevron-up' : 'settings-outline'}
+                size={16}
+              />
+            </TouchableOpacity>
+
+            {showServerConfig ? (
+              <View style={styles.serverConfigBox}>
+                <Text style={styles.serverConfigTitle}>Ajustar IP del Servidor</Text>
+                <TextField
+                  autoCapitalize="none"
+                  label="URL de API Laravel"
+                  placeholder="http://192.168.200.103:8080/api"
+                  value={serverUrl}
+                  onChangeText={setServerUrl}
+                />
+                {serverPingMessage ? (
+                  <Text
+                    style={[
+                      styles.serverPingText,
+                      serverPingStatus === 'ok' ? styles.textSuccess : styles.textDanger,
+                    ]}
+                  >
+                    {serverPingMessage}
+                  </Text>
+                ) : null}
+                <View style={styles.serverActionRow}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={styles.serverActionBtn}
+                    onPress={handleSaveServerUrl}
+                  >
+                    <Ionicons color={colors.onPrimary} name="save-outline" size={16} />
+                    <Text style={styles.serverActionBtnText}>Guardar y Probar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={styles.serverResetBtn}
+                    onPress={async () => {
+                      await resetCustomApiBaseUrl();
+                      const def = await getActiveApiBaseUrl();
+                      setServerUrl(def);
+                      const res = await pingBackend(def);
+                      setServerPingStatus(res.ok ? 'ok' : 'error');
+                      setServerPingMessage(res.message);
+                    }}
+                  >
+                    <Ionicons color={colors.textMuted} name="refresh-outline" size={16} />
+                    <Text style={styles.serverResetBtnText}>Restablecer</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : null}
           </Card>
 
           <View style={styles.footer}>
@@ -158,6 +312,35 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: spacing.xs,
   },
+  quickRoles: {
+    marginVertical: spacing.xs,
+    gap: spacing.xs,
+  },
+  quickRolesLabel: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  quickRolesRow: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
+  quickRoleChip: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xs,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surfaceAlt,
+    borderColor: colors.border,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  quickRoleText: {
+    color: colors.text,
+    fontSize: 12,
+    fontWeight: '600',
+  },
   errorBox: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -172,6 +355,97 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.danger,
     fontSize: 13,
+  },
+  serverInfoBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radius.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm + 2,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginTop: spacing.xs,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  statusDotOk: {
+    backgroundColor: colors.primary,
+  },
+  statusDotChecking: {
+    backgroundColor: colors.warning,
+  },
+  statusDotError: {
+    backgroundColor: colors.danger,
+  },
+  serverInfoText: {
+    flex: 1,
+    color: colors.textMuted,
+    fontSize: 11,
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+  },
+  serverConfigBox: {
+    backgroundColor: colors.surfaceAlt,
+    padding: spacing.md,
+    borderRadius: radius.sm,
+    borderColor: colors.border,
+    borderWidth: 1,
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  serverConfigTitle: {
+    color: colors.text,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  serverPingText: {
+    fontSize: 12,
+  },
+  textSuccess: {
+    color: colors.primary,
+  },
+  textDanger: {
+    color: colors.danger,
+  },
+  serverActionRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
+  serverActionBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+  },
+  serverActionBtnText: {
+    color: colors.onPrimary,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  serverResetBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+    backgroundColor: colors.background,
+    borderColor: colors.border,
+    borderWidth: 1,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm + 4,
+    borderRadius: radius.sm,
+  },
+  serverResetBtnText: {
+    color: colors.textMuted,
+    fontSize: 12,
+    fontWeight: '600',
   },
   footer: {
     flexDirection: 'row',

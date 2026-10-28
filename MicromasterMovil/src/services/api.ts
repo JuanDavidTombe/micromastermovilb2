@@ -7,17 +7,25 @@ import {
 } from 'axios';
 import Constants from 'expo-constants';
 
-import { clearSessionStorage, tokenStorage } from '@/services/storage';
+import { clearSessionStorage, serverUrlStorage, tokenStorage } from '@/services/storage';
 
 // El backend Laravel de MicroMaster publica sus rutas en /api (sin prefijo v1).
-const DEFAULT_BASE_URL = 'http://192.168.1.100:8000/api';
+const DEFAULT_BASE_URL = 'http://192.168.200.103:8080/api';
 
 function resolveBaseUrl(): string {
   const fromEnv = process.env.EXPO_PUBLIC_API_URL;
-  if (fromEnv && fromEnv.length > 0) return fromEnv.replace(/\/$/, '');
+  if (fromEnv && fromEnv.length > 0 && !fromEnv.includes('192.168.200.102')) {
+    return fromEnv.replace(/\/$/, '');
+  }
 
   const fromConfig = Constants.expoConfig?.extra?.apiBaseUrl;
-  if (typeof fromConfig === 'string' && fromConfig.length > 0) return fromConfig.replace(/\/$/, '');
+  if (
+    typeof fromConfig === 'string' &&
+    fromConfig.length > 0 &&
+    !fromConfig.includes('192.168.200.102')
+  ) {
+    return fromConfig.replace(/\/$/, '');
+  }
 
   return DEFAULT_BASE_URL;
 }
@@ -53,9 +61,12 @@ function extractLaravelMessage(data: unknown): string {
 function buildFailure(error: AxiosError<unknown>): ApiFailure {
   const status = error.response?.status ?? 0;
   const data = error.response?.data;
+  const targetBase = error.config?.baseURL ?? API_BASE_URL;
   const message =
     extractLaravelMessage(data) ||
-    (status === 0 ? 'No hay conexión con el servidor MicroMaster.' : error.message);
+    (status === 0
+      ? `No hay conexión con el servidor (${targetBase}). Verifica que el celular esté en la misma red Wi-Fi o ajusta la IP.`
+      : error.message);
 
   const errors =
     data && typeof data === 'object' && (data as Record<string, unknown>).errors
@@ -75,6 +86,10 @@ export const api: AxiosInstance = create({
 });
 
 api.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
+  const customUrl = await serverUrlStorage.get();
+  if (customUrl) {
+    config.baseURL = customUrl.replace(/\/$/, '');
+  }
   const token = await tokenStorage.get();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -107,26 +122,42 @@ export interface PingResult {
   message: string;
 }
 
+export async function getActiveApiBaseUrl(): Promise<string> {
+  const custom = await serverUrlStorage.get();
+  return custom ? custom.replace(/\/$/, '') : API_BASE_URL;
+}
+
+export async function setCustomApiBaseUrl(newUrl: string): Promise<void> {
+  const clean = newUrl.trim().replace(/\/$/, '');
+  await serverUrlStorage.set(clean);
+  api.defaults.baseURL = clean;
+}
+
+export async function resetCustomApiBaseUrl(): Promise<void> {
+  await serverUrlStorage.clear();
+  api.defaults.baseURL = API_BASE_URL;
+}
+
 /**
  * Comprueba que el servidor Laravel esté accesible desde el dispositivo.
- * El backend no expone /health, así que se consulta la raíz del dominio.
  */
-export async function pingBackend(): Promise<PingResult> {
-  const origin = API_BASE_URL.replace(/\/api(\/.*)?$/, '');
+export async function pingBackend(overrideUrl?: string): Promise<PingResult> {
+  const target = (overrideUrl ?? (await getActiveApiBaseUrl())).replace(/\/$/, '');
+  const origin = target.replace(/\/api(\/.*)?$/, '');
 
   try {
     await probe.get(`${origin}/`);
-    return { ok: true, message: `Backend MicroMaster accesible en ${origin}` };
+    return { ok: true, message: `Conexión exitosa con ${target}` };
   } catch (error) {
     if (isAxiosError(error) && error.response) {
       return {
         ok: true,
-        message: `Backend responde en ${origin} (HTTP ${error.response.status}).`,
+        message: `Servidor respondió en ${target} (HTTP ${error.response.status}).`,
       };
     }
     return {
       ok: false,
-      message: `Sin respuesta de ${origin}. Ejecuta "php artisan serve" y revisa la IP en .env.`,
+      message: `Sin respuesta en ${target}.`,
     };
   }
 }

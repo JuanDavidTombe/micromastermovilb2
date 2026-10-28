@@ -136,6 +136,18 @@ export interface OrderRouteRef {
   destination?: string | null;
 }
 
+export interface DeliveryOrderItem {
+  id: number | string;
+  name: string;
+  quantity: number;
+  unit: string;
+  unit_price: number;
+  total_price: number;
+  rejected_quantity?: number;
+  rejection_reason?: string;
+  confirmed?: boolean;
+}
+
 export interface DeliveryOrder {
   id: number;
   route_id?: number | null;
@@ -150,9 +162,15 @@ export interface DeliveryOrder {
   payment_status?: string;
   payment_status_label?: string;
   amount?: number | string;
+  original_amount?: number | string;
+  adjusted_amount?: number | string;
   received_amount?: number | string | null;
   change_due?: number | string | null;
   route?: OrderRouteRef | null;
+  items?: DeliveryOrderItem[];
+  pod_photo_uri?: string | null;
+  transfer_receipt_uri?: string | null;
+  signature_captured?: boolean | null;
 }
 
 export type PaymentMethod = 'cash' | 'qr';

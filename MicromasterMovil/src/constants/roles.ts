@@ -72,7 +72,11 @@ export function isDriver(user: User | null): boolean {
 }
 
 export function isLogistics(user: User | null): boolean {
-  return user?.role === 'OPERARIO_LOGISTICO';
+  return user?.role === 'OPERARIO_LOGISTICO' || user?.role === 'AUXILIAR_BODEGA';
+}
+
+export function isWarehouseOperator(user: User | null): boolean {
+  return isLogistics(user);
 }
 
 export function isAdmin(user: User | null): boolean {
