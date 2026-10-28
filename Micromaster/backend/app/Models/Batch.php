@@ -34,7 +34,24 @@ class Batch extends Model
         'is_quarantined' => 'boolean',
     ];
 
-    protected $appends = ['status_color', 'days_to_expire', 'remaining_percentage'];
+    protected $appends = [
+        'status_color',
+        'days_to_expire',
+        'remaining_percentage',
+        'unit_cost',
+        'total_value',
+    ];
+
+    public function getUnitCostAttribute(): float
+    {
+        return (float) ($this->ingredient?->cost_per_unit ?? 0);
+    }
+
+    public function getTotalValueAttribute(): float
+    {
+        $cost = (float) ($this->ingredient?->cost_per_unit ?? 0);
+        return round((float) $this->quantity * $cost, 2);
+    }
 
     public function getStatusColorAttribute(): string
     {

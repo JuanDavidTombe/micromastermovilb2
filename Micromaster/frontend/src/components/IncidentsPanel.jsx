@@ -44,6 +44,31 @@ export default function IncidentsPanel({
   const [open, setOpen] = useState({});
   const [error, setError] = useState('');
 
+  // Reasignación rápida por vehículo varado
+  const [reassignIncident, setReassignIncident] = useState(null);
+  const [targetRouteId, setTargetRouteId] = useState('');
+  const [reassigning, setReassigning] = useState(false);
+
+  const handleConfirmReassign = async () => {
+    if (!reassignIncident || !targetRouteId) return;
+    setReassigning(true);
+    try {
+      const targetRoute = routes.find((r) => String(r.id) === String(targetRouteId));
+      await onUpdate(reassignIncident.id, {
+        status: 'RESOLVED',
+        route_id: Number(targetRouteId),
+        driver_id: targetRoute?.driver?.id || undefined,
+        resolution: `Pedidos reasignados a ${targetRoute?.route_code || `Ruta #${targetRouteId}`} por avería física (inventario en tránsito ajustado automáticamente).`,
+      });
+      setReassignIncident(null);
+      setTargetRouteId('');
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setReassigning(false);
+    }
+  };
+
   const submitReport = async () => {
     setError('');
     try {
@@ -132,6 +157,17 @@ export default function IncidentsPanel({
                     <p className="text-[10px] text-green-700 bg-green-500/10 rounded-lg px-2 py-1 mt-2">
                       <i className="bi bi-check-lg" aria-hidden="true" /> {inc.resolution}
                     </p>
+                  )}
+
+                  {/* Botón directo de resolución rápida: Reasignar Pedidos por vehículo varado */}
+                  {inc.type === 'VEHICLE_BREAKDOWN' && isOpen && canManage && (
+                    <button
+                      onClick={() => { setReassignIncident(inc); setTargetRouteId(''); }}
+                      className="mt-2.5 w-full py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all"
+                    >
+                      <i className="bi bi-truck-flatbed text-sm" aria-hidden="true" />
+                      Reasignar Pedidos de Ruta
+                    </button>
                   )}
 
                   <div className="flex flex-wrap gap-2 mt-2">
@@ -266,6 +302,88 @@ export default function IncidentsPanel({
 
           {error && <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-600">{error}</div>}
         </div>
+      </Modal>
+
+      {/* Modal de Reasignación de Pedidos por Vehículo Varado */}
+      <Modal
+        isOpen={!!reassignIncident}
+        onClose={() => { setReassignIncident(null); setTargetRouteId(''); }}
+        title="Reasignar Pedidos de Ruta (Vehículo Varado)"
+        footer={
+          <>
+            <button
+              onClick={() => { setReassignIncident(null); setTargetRouteId(''); }}
+              className="px-4 py-2 rounded-xl text-sm border border-slate-200 hover:bg-slate-50 transition-all"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleConfirmReassign}
+              disabled={!targetRouteId || reassigning}
+              className="px-4 py-2 rounded-xl text-sm bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold disabled:opacity-40 transition-all flex items-center gap-2 shadow-sm"
+            >
+              <i className="bi bi-arrow-left-right" aria-hidden="true" />
+              {reassigning ? 'Reasignando...' : 'Trasladar Pedidos y Ajustar Tránsito'}
+            </button>
+          </>
+        }
+      >
+        {reassignIncident && (
+          <div className="space-y-4">
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs space-y-1">
+              <p className="font-bold text-amber-900 flex items-center gap-1.5">
+                <i className="bi bi-exclamation-triangle-fill text-amber-600" aria-hidden="true" />
+                Vehículo varado en ruta de distribución
+              </p>
+              <p className="text-amber-800">
+                Selecciona un camión activo disponible para trasladar los pedidos pendientes. Esto ajustará la ruta y el inventario en tránsito automáticamente.
+              </p>
+            </div>
+
+            <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-1.5 text-xs">
+              <div className="flex justify-between">
+                <span className="text-slate-500">Ruta afectada:</span>
+                <span className="font-mono font-bold text-slate-800">
+                  {reassignIncident.route?.route_code || `Ruta #${reassignIncident.route_id || '-'}`}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Conductor / Camión:</span>
+                <span className="text-slate-800 font-medium">
+                  {reassignIncident.driver?.name || 'Conductor asignado'}
+                </span>
+              </div>
+              {reassignIncident.order && (
+                <div className="flex justify-between border-t border-slate-200 pt-1 mt-1">
+                  <span className="text-slate-500">Factura / Pedido:</span>
+                  <span className="font-bold text-slate-900">
+                    Pedido #{reassignIncident.order.id} (${reassignIncident.order.amount})
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="text-xs uppercase tracking-wider text-slate-600 font-bold mb-1.5 block">
+                Seleccionar Camión / Ruta de Destino Activa
+              </label>
+              <select
+                value={targetRouteId}
+                onChange={(e) => setTargetRouteId(e.target.value)}
+                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs bg-white focus:ring-2 focus:ring-lime-400 outline-none"
+              >
+                <option value="">Seleccione camión de apoyo...</option>
+                {routes
+                  .filter((r) => r.id !== reassignIncident.route_id)
+                  .map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.route_code} — {r.destination} ({r.driver?.name || 'Sin conductor'})
+                    </option>
+                  ))}
+              </select>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

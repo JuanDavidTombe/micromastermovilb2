@@ -32,11 +32,6 @@ export default function Topbar({ user, onMenuToggle, onProfileUpdated }) {
         </div>
 
         <div className="flex items-center gap-2 md:gap-4 min-w-0">
-          <div className="hidden lg:flex items-center gap-2 bg-white/5 rounded-xl px-3 py-1.5">
-            <i className="bi bi-search text-xs" aria-hidden="true" />
-            <input type="text" placeholder="Buscar..." className="bg-transparent text-xs outline-none w-40 text-white placeholder:text-white/30" />
-          </div>
-
           <div className="flex items-center gap-2 min-w-0">
             <span
               title="Rol asignado por el administrador del sistema"
@@ -56,7 +51,9 @@ export default function Topbar({ user, onMenuToggle, onProfileUpdated }) {
                 {user?.name?.charAt(0)?.toUpperCase() || 'U'}
               </span>
               <span className="hidden md:block text-left min-w-0 max-w-[9rem]">
-                <span className="block text-[11px] font-semibold truncate leading-tight">{user?.name}</span>
+                <span className="block text-[11px] font-semibold truncate leading-tight">
+                  {user?.name ? user.name.replace(/Palehor/gi, 'Palechor') : ''}
+                </span>
                 <span className="block text-[9px] text-lime-400 uppercase tracking-wider truncate leading-tight">
                   Mi perfil
                 </span>

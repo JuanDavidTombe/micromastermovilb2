@@ -124,7 +124,9 @@ export default function Sidebar({ user, sidebarOpen, onToggle, onLogout }) {
             {user?.name?.charAt(0) || 'U'}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold truncate">{user?.name}</p>
+            <p className="text-xs font-semibold truncate">
+              {user?.name ? user.name.replace(/Palehor/gi, 'Palechor') : 'Usuario'}
+            </p>
             <p className="text-[9px] text-lime-400 uppercase tracking-wider truncate">{user?.role_label}</p>
           </div>
           <button onClick={onLogout} title="Cerrar sesión" className="p-1.5 rounded-lg hover:bg-red-500/20 hover:text-red-400 text-white/50 text-xs transition-colors">

@@ -23,6 +23,13 @@ class Order extends Model
         'amount',
         'received_amount',
         'change_due',
+        'is_bank_reconciled',
+        'bank_name',
+        'bank_reference',
+        'bank_fee',
+        'reconciled_at',
+        'reconciled_by',
+        'credit_days',
         'contingency',
         'contingency_reason',
     ];
@@ -31,6 +38,9 @@ class Order extends Model
         'amount' => 'decimal:2',
         'received_amount' => 'decimal:2',
         'change_due' => 'decimal:2',
+        'bank_fee' => 'decimal:2',
+        'is_bank_reconciled' => 'boolean',
+        'reconciled_at' => 'datetime',
         'contingency' => 'boolean',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
@@ -69,6 +79,11 @@ class Order extends Model
     public function driver()
     {
         return $this->belongsTo(User::class, 'driver_id');
+    }
+
+    public function reconciledBy()
+    {
+        return $this->belongsTo(User::class, 'reconciled_by');
     }
 
     public function incidents()

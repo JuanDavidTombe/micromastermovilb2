@@ -4,6 +4,7 @@ import FreshCard from '../components/FreshCard';
 import TechBadge from '../components/TechBadge';
 import { hasModuleAccess } from '../constants/roles';
 import { formatHumanDate } from '../utils/dateFormatter';
+import { formatCOP } from '../utils/currencyFormatter';
 
 const TABS = [
   { id: 'resumen', label: 'Resumen General' },
@@ -43,12 +44,14 @@ export default function Dashboard({ user }) {
 
   return (
     <div className="space-y-4 md:space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Inicio · Torre de Control</h1>
-          <p className="text-sm text-slate-500">Bienvenido, {user?.name}</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">Inicio · Torre de Control</h1>
+          <p className="text-xs sm:text-sm text-slate-500">Bienvenido, {user?.name}</p>
         </div>
-        <TechBadge label="SISTEMA OPERATIVO" color="lime" />
+        <div className="self-start sm:self-auto shrink-0">
+          <TechBadge label="SISTEMA OPERATIVO" color="lime" />
+        </div>
       </div>
 
       {(criticalCount > 0 || warningCount > 0 || expiring.length > 0) && (
@@ -89,8 +92,8 @@ export default function Dashboard({ user }) {
       </div>
 
       {hasModuleAccess(role, 'inventory_stock') && (activeTab === 'resumen' || activeTab === 'inventario') && (
-        <div className="grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-4 gap-4">
-          <FreshCard title="Inventario Total" value={`${kpis.total_inventory_kg || 0} kg`} subtitle={`Valor: $${(kpis.total_inventory_value || 0).toLocaleString()}`} icon="box-seam" color="lime" />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4">
+          <FreshCard title="Inventario Total" value={`${kpis.total_inventory_kg || 0} kg`} subtitle={`Valor: ${formatCOP(kpis.total_inventory_value || 0, true)}`} icon="box-seam" color="lime" />
           <FreshCard title="Lotes Óptimos" value={kpis.optimal_batches || 0} subtitle="Disponibles" icon="check-circle-fill" color="lime" />
           <FreshCard title="Alertas Críticas" value={kpis.critical_batches || 0} subtitle="Requieren atención" icon="exclamation-triangle" color="terracotta" />
           <FreshCard title="Órdenes Completadas" value={kpis.completed_orders || 0} subtitle={`Pendientes: ${kpis.pending_orders || 0}`} icon="truck" color="lime" />
@@ -141,11 +144,11 @@ export default function Dashboard({ user }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 rounded-xl bg-cream">
               <span className="text-xs text-slate-500">Ingresos Totales</span>
-              <p className="text-2xl font-bold text-slate-900">${(kpis.total_revenue || 0).toLocaleString()}</p>
+              <p className="text-xl font-bold text-slate-900">{formatCOP(kpis.total_revenue || 0, true)}</p>
             </div>
             <div className="p-4 rounded-xl bg-cream">
               <span className="text-xs text-slate-500">Cobrado</span>
-              <p className="text-2xl font-bold text-[#4F6B00]">${(kpis.total_collected || 0).toLocaleString()}</p>
+              <p className="text-xl font-bold text-[#4F6B00]">{formatCOP(kpis.total_collected || 0, true)}</p>
             </div>
             <div className="p-4 rounded-xl bg-cream">
               <span className="text-xs text-slate-500">Mermas</span>

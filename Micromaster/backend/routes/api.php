@@ -11,6 +11,7 @@ use App\Http\Controllers\MicroDeliveryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WarehouseController;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\ModulePermissionMiddleware;
 
@@ -31,19 +32,44 @@ Route::middleware(['auth:sanctum', 'write.guard'])->group(function () {
     Route::patch('/profile/preferences', [ProfileController::class, 'updatePreferences']);
     Route::delete('/profile/sessions', [ProfileController::class, 'revokeSessions']);
     Route::get('/dashboard', [DashboardController::class, 'index']);
-    Route::middleware(RoleMiddleware::class.':ADMINISTRADOR,OPERARIO_LOGISTICO,SUPERVISOR_PRODUCCION')->group(function () {
+    Route::middleware(RoleMiddleware::class.':ADMINISTRADOR,OPERARIO_LOGISTICO,SUPERVISOR_PRODUCCION,CONTADOR')->group(function () {
+        Route::get('/inventory/summary', [MicroStockController::class, 'inventorySummary']);
         Route::get('/stock/batches', [MicroStockController::class, 'index']);
         Route::get('/stock/alerts', [MicroStockController::class, 'alerts']);
         Route::get('/stock/ingredients', [MicroStockController::class, 'ingredientStock']);
+        Route::get('/stock/purchase-orders', [MicroStockController::class, 'purchaseOrdersList']);
         Route::get('/stock/purchase-orders/{code}', [MicroStockController::class, 'purchaseOrder']);
+        Route::get('/stock/movements', [MicroStockController::class, 'movements']);
     });
     Route::middleware(RoleMiddleware::class.':ADMINISTRADOR,OPERARIO_LOGISTICO')->group(function () {
         Route::post('/stock/batches', [MicroStockController::class, 'store']);
         Route::post('/stock/entry', [MicroStockController::class, 'entry']);
+        Route::post('/stock/reception-match', [MicroStockController::class, 'receptionMatch']);
         Route::post('/stock/exit', [MicroStockController::class, 'exit']);
         Route::patch('/stock/batches/{id}/block', [MicroStockController::class, 'block']);
         // *** Sincronización QR (app móvil -> API web) ***
         Route::post('/stock/qr-scan', [MicroStockController::class, 'qrScan']);
+
+        // *** OPERACIONES DE BODEGA / HUB DEL AUXILIAR ***
+        Route::get('/warehouse/hub', [WarehouseController::class, 'hub']);
+        Route::get('/warehouse/picking/approved-orders', [WarehouseController::class, 'approvedOrders']);
+        Route::post('/warehouse/picking/complete-order', [WarehouseController::class, 'completeOrderPicking']);
+        Route::get('/warehouse/picking-routes', [WarehouseController::class, 'pickingRoutes']);
+        Route::post('/warehouse/picking/verify-scan', [WarehouseController::class, 'verifyPickingScan']);
+        Route::post('/warehouse/picking/confirm-quantity', [WarehouseController::class, 'confirmPickingQuantity']);
+        Route::get('/warehouse/reception/orders', [WarehouseController::class, 'receptionOrders']);
+        Route::post('/warehouse/reception/weigh', [WarehouseController::class, 'recordReceptionWeigh']);
+        Route::post('/warehouse/reception/finish', [WarehouseController::class, 'finishReception']);
+        Route::get('/warehouse/audit/lookup', [WarehouseController::class, 'auditLookup']);
+        Route::post('/warehouse/audit/adjust', [WarehouseController::class, 'auditAdjust']);
+
+        // *** AUDITORÍA GUIADA POR EXCEPCIÓN ***
+        Route::get('/warehouse/audit/zones', [WarehouseController::class, 'auditZones']);
+        Route::get('/warehouse/audit/plan', [WarehouseController::class, 'auditPlan']);
+        Route::post('/warehouse/audit/confirm-batch', [WarehouseController::class, 'confirmBatch']);
+        Route::post('/warehouse/audit/adjust-batch', [WarehouseController::class, 'adjustBatch']);
+        Route::post('/warehouse/audit/register-unlisted', [WarehouseController::class, 'registerUnlisted']);
+        Route::post('/warehouse/audit/finalize-zone', [WarehouseController::class, 'finalizeZone']);
     });
 
     /*
@@ -61,6 +87,14 @@ Route::middleware(['auth:sanctum', 'write.guard'])->group(function () {
         Route::delete('/cost/recipes/{id}', [MicroCostController::class, 'destroyRecipe']);
         Route::post('/cost/simulate-scale', [MicroCostController::class, 'simulateScale']);
         Route::get('/cost/ingredients', [MicroCostController::class, 'ingredients']);
+        // Fase 2 & 3: Órdenes de Producción / Tandas
+        Route::get('/cost/production-orders', [MicroCostController::class, 'productionOrders']);
+        Route::post('/cost/production-orders', [MicroCostController::class, 'createProductionOrder']);
+        Route::get('/cost/production-orders/{id}', [MicroCostController::class, 'showProductionOrder']);
+        Route::post('/cost/production-orders/{id}/close', [MicroCostController::class, 'closeProductionOrder']);
+        // Fase 4: Ajuste de Mermas de Planta
+        Route::get('/cost/floor-waste', [MicroCostController::class, 'getFloorWastes']);
+        Route::post('/cost/floor-waste', [MicroCostController::class, 'storeFloorWaste']);
     });
 
     /*
@@ -81,6 +115,8 @@ Route::middleware(['auth:sanctum', 'write.guard'])->group(function () {
 
         // Gestión de pedidos
         Route::post('/orders', [OrderController::class, 'store']);
+        Route::post('/orders/bulk-release', [OrderController::class, 'bulkRelease']);
+        Route::post('/orders/simulate-intake', [OrderController::class, 'simulateIntake']);
         Route::patch('/orders/{id}', [OrderController::class, 'update']);
         Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
     });
@@ -120,6 +156,12 @@ Route::middleware(['auth:sanctum', 'write.guard'])->group(function () {
     */
     Route::middleware(ModulePermissionMiddleware::class.':reports_simulations')->group(function () {
         Route::get('/reports', [ReportController::class, 'index']);
+        Route::get('/reports/financial-kpis', [ReportController::class, 'financialKpis']);
+        Route::get('/reports/inventory-valuation', [ReportController::class, 'inventoryValuation']);
+        Route::post('/reports/inventory-snapshots', [ReportController::class, 'closeInventorySnapshot']);
+        Route::get('/reports/bank-reconciliation', [ReportController::class, 'bankReconciliation']);
+        Route::post('/reports/reconcile-order/{id}', [ReportController::class, 'reconcileOrder']);
+        Route::get('/reports/export-filtered', [ReportController::class, 'exportFiltered']);
         Route::get('/reports/costs', [ReportController::class, 'costs']);
         Route::get('/reports/stock', [ReportController::class, 'stock']);
         Route::get('/reports/orders', [ReportController::class, 'orders']);
@@ -152,5 +194,16 @@ Route::middleware(['auth:sanctum', 'write.guard'])->group(function () {
         // CONFIGURACIÓN DEL SISTEMA (perfil B2B de la empresa)
         Route::get('/settings/company', [AdminController::class, 'showCompany']);
         Route::patch('/settings/company', [AdminController::class, 'updateCompany']);
+
+        // === VISTA 1: HOME FINANCIERO ===
+        Route::get('/admin/dashboard', [AdminController::class, 'financialDashboard']);
+
+        // === VISTA 2: CENTRO DE APROBACIONES (Gestión por fricción) ===
+        Route::get('/admin/approvals', [AdminController::class, 'approvals']);
+        Route::post('/admin/approvals/{id}/action', [AdminController::class, 'actionApproval']);
+
+        // === VISTA 3: ALERTAS CRÍTICAS (Alertas Macro) ===
+        Route::get('/admin/critical-alerts', [AdminController::class, 'criticalAlerts']);
+        Route::patch('/admin/critical-alerts/{id}/dismiss', [AdminController::class, 'dismissCriticalAlert']);
     });
 });

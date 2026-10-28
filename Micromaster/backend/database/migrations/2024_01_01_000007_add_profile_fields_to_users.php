@@ -48,7 +48,7 @@ return new class extends Migration
             'OPERARIO_LOGISTICO' => ['Bodega Central - Popayán', 'Turno Mañana: 06:00 - 14:00', 'Juan David Tombe'],
             'SUPERVISOR_PRODUCCION' => ['Planta de Producción - Popayán', 'Turno Mañana: 06:00 - 14:00', 'Juan David Tombe'],
             'CONTADOR' => ['Oficina Administrativa - Popayán', 'Turno Oficina: 08:00 - 17:00', 'Juan David Tombe'],
-            'TRANSPORTISTA' => ['Bodega Central - Popayán', 'Turno Ruta: 06:00 - 16:00', 'Maria Camila Palehor'],
+            'TRANSPORTISTA' => ['Bodega Central - Popayán', 'Turno Ruta: 06:00 - 16:00', 'María Camila Palechor'],
         ];
 
         foreach ($defaults as $role => [$site, $shift, $boss]) {

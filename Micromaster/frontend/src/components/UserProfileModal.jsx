@@ -551,6 +551,15 @@ export default function UserProfileModal({ isOpen, onClose, user, onProfileUpdat
                     ? 'No hay sesiones externas'
                     : `Cerrar todas las sesiones externas (${externalSessions.length})`}
                 </button>
+
+                <button
+                  onClick={logout}
+                  disabled={saving}
+                  className="mt-2 w-full px-4 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 text-[11px] font-bold transition-all flex items-center justify-center gap-2"
+                >
+                  <i className="bi bi-power" aria-hidden="true" />
+                  Cerrar sesión en este equipo
+                </button>
               </div>
             </div>
           ) : (
@@ -621,16 +630,9 @@ export default function UserProfileModal({ isOpen, onClose, user, onProfileUpdat
           <div className="flex items-center gap-2 ml-auto">
             <button
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-xs font-semibold border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all"
+              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-slate-900 text-white hover:bg-slate-800 transition-all"
             >
-              Cerrar
-            </button>
-            <button
-              onClick={logout}
-              disabled={saving}
-              className="px-5 py-2.5 rounded-xl bg-red-600 text-white text-xs font-bold hover:bg-red-700 disabled:opacity-50 transition-all"
-            >
-              <i className="bi bi-power" aria-hidden="true" /> CERRAR SESIÓN
+              Cerrar Ventana
             </button>
           </div>
         </div>

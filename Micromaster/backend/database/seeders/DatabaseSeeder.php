@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
 
         // OPERARIO_LOGISTICO
         User::create([
-            'name' => 'Maria Camila Palehor',
+            'name' => 'María Camila Palechor',
             'email' => 'logistica@micromaster.com',
             'password' => Hash::make('logistica123'),
             'role' => User::ROLE_OPERARIO_LOGISTICO,
@@ -96,32 +96,32 @@ class DatabaseSeeder extends Seeder
             'photo_url' => 'https://randomuser.me/api/portraits/men/76.jpg',
         ]);
 
-        // Ingredients
-        $rice = Ingredient::create(['name' => 'Arroz Graneado', 'unit' => 'kg', 'cost_per_unit' => 2.50]);
-        $beans = Ingredient::create(['name' => 'Fríjoles Rojos', 'unit' => 'kg', 'cost_per_unit' => 3.20]);
-        $oil = Ingredient::create(['name' => 'Aceite Vegetal', 'unit' => 'litro', 'cost_per_unit' => 4.80]);
-        $salt = Ingredient::create(['name' => 'Sal Marina', 'unit' => 'kg', 'cost_per_unit' => 1.20]);
-        $sauce = Ingredient::create(['name' => 'Soya Sauce', 'unit' => 'litro', 'cost_per_unit' => 6.50]);
-        $pepper = Ingredient::create(['name' => 'Pimienta Negra', 'unit' => 'kg', 'cost_per_unit' => 8.90]);
-        $onion = Ingredient::create(['name' => 'Cebolla Junca', 'unit' => 'kg', 'cost_per_unit' => 1.80]);
-        $chicken = Ingredient::create(['name' => 'Pollo Fresco', 'unit' => 'kg', 'cost_per_unit' => 9.50]);
+        // Ingredients (Valores reales de mercado en Pesos Colombianos COP)
+        $rice = Ingredient::create(['name' => 'Arroz Graneado', 'unit' => 'kg', 'cost_per_unit' => 4200.00]);
+        $beans = Ingredient::create(['name' => 'Fríjoles Rojos', 'unit' => 'kg', 'cost_per_unit' => 8500.00]);
+        $oil = Ingredient::create(['name' => 'Aceite Vegetal', 'unit' => 'litro', 'cost_per_unit' => 12000.00]);
+        $salt = Ingredient::create(['name' => 'Sal Marina', 'unit' => 'kg', 'cost_per_unit' => 1800.00]);
+        $sauce = Ingredient::create(['name' => 'Soya Sauce', 'unit' => 'litro', 'cost_per_unit' => 9500.00]);
+        $pepper = Ingredient::create(['name' => 'Pimienta Negra', 'unit' => 'kg', 'cost_per_unit' => 28000.00]);
+        $onion = Ingredient::create(['name' => 'Cebolla Junca', 'unit' => 'kg', 'cost_per_unit' => 3500.00]);
+        $chicken = Ingredient::create(['name' => 'Pollo Fresco', 'unit' => 'kg', 'cost_per_unit' => 14500.00, 'is_variable_weight' => true]);
 
-        // Recipes
+        // Recipes (BOM costeadas en COP)
         $recipe1 = Recipe::create(['name' => 'Base Arroz con Fríjoles', 'waste_percentage' => 5.00]);
-        RecipeIngredient::create(['recipe_id' => $recipe1->id, 'ingredient_id' => $rice->id, 'quantity' => 1.0000, 'unit_cost' => 2.50]);
-        RecipeIngredient::create(['recipe_id' => $recipe1->id, 'ingredient_id' => $beans->id, 'quantity' => 0.5000, 'unit_cost' => 3.20]);
-        RecipeIngredient::create(['recipe_id' => $recipe1->id, 'ingredient_id' => $salt->id, 'quantity' => 0.0500, 'unit_cost' => 1.20]);
+        RecipeIngredient::create(['recipe_id' => $recipe1->id, 'ingredient_id' => $rice->id, 'quantity' => 1.0000, 'unit_cost' => 4200.00]);
+        RecipeIngredient::create(['recipe_id' => $recipe1->id, 'ingredient_id' => $beans->id, 'quantity' => 0.5000, 'unit_cost' => 8500.00]);
+        RecipeIngredient::create(['recipe_id' => $recipe1->id, 'ingredient_id' => $salt->id, 'quantity' => 0.0500, 'unit_cost' => 1800.00]);
 
         $recipe2 = Recipe::create(['name' => 'Pollo con Soya', 'waste_percentage' => 8.00]);
-        RecipeIngredient::create(['recipe_id' => $recipe2->id, 'ingredient_id' => $chicken->id, 'quantity' => 1.0000, 'unit_cost' => 9.50]);
-        RecipeIngredient::create(['recipe_id' => $recipe2->id, 'ingredient_id' => $sauce->id, 'quantity' => 0.3000, 'unit_cost' => 6.50]);
-        RecipeIngredient::create(['recipe_id' => $recipe2->id, 'ingredient_id' => $oil->id, 'quantity' => 0.1000, 'unit_cost' => 4.80]);
-        RecipeIngredient::create(['recipe_id' => $recipe2->id, 'ingredient_id' => $pepper->id, 'quantity' => 0.0200, 'unit_cost' => 8.90]);
+        RecipeIngredient::create(['recipe_id' => $recipe2->id, 'ingredient_id' => $chicken->id, 'quantity' => 1.0000, 'unit_cost' => 14500.00]);
+        RecipeIngredient::create(['recipe_id' => $recipe2->id, 'ingredient_id' => $sauce->id, 'quantity' => 0.3000, 'unit_cost' => 9500.00]);
+        RecipeIngredient::create(['recipe_id' => $recipe2->id, 'ingredient_id' => $oil->id, 'quantity' => 0.1000, 'unit_cost' => 12000.00]);
+        RecipeIngredient::create(['recipe_id' => $recipe2->id, 'ingredient_id' => $pepper->id, 'quantity' => 0.0200, 'unit_cost' => 28000.00]);
 
         $recipe3 = Recipe::create(['name' => 'Sopa de Cebolla', 'waste_percentage' => 3.00]);
-        RecipeIngredient::create(['recipe_id' => $recipe3->id, 'ingredient_id' => $onion->id, 'quantity' => 0.8000, 'unit_cost' => 1.80]);
-        RecipeIngredient::create(['recipe_id' => $recipe3->id, 'ingredient_id' => $oil->id, 'quantity' => 0.0500, 'unit_cost' => 4.80]);
-        RecipeIngredient::create(['recipe_id' => $recipe3->id, 'ingredient_id' => $salt->id, 'quantity' => 0.0300, 'unit_cost' => 1.20]);
+        RecipeIngredient::create(['recipe_id' => $recipe3->id, 'ingredient_id' => $onion->id, 'quantity' => 0.8000, 'unit_cost' => 3500.00]);
+        RecipeIngredient::create(['recipe_id' => $recipe3->id, 'ingredient_id' => $oil->id, 'quantity' => 0.0500, 'unit_cost' => 12000.00]);
+        RecipeIngredient::create(['recipe_id' => $recipe3->id, 'ingredient_id' => $salt->id, 'quantity' => 0.0300, 'unit_cost' => 1800.00]);
 
         // Batches with FEFO + trazabilidad (proveedor, QR, cantidad inicial)
         $now = now();
@@ -257,16 +257,16 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // ------------------------------------------------------------------
-        // PEDIDOS con coordenadas de destino (marcadores en el mapa)
+        // PEDIDOS con coordenadas de destino (Montos realistas en Pesos Colombianos COP)
         // ------------------------------------------------------------------
         $orders = [
             // [route, driver, destino, cliente, estado, pago, monto, recibido, cambio, otp, lat, lng]
-            [$route1, $driver1, 'Bodega Central - Barranquilla', 'Distribuidora El Éxito', 'in_transit', 'cash',   1250.00, 1500.00, 250.00, '8421', 10.96850000, -74.78130000],
-            [$route1, $driver1, 'Bodega Central - Barranquilla', 'Mercados La Gran Vía',  'delivered',  'qr',      890.00,  890.00,   0.00, '3679', 11.00800000, -74.83000000],
-            [$route2, $driver2, 'Mercado Norte - Cartagena',     'Supermercado Buen Día', 'assigned',   'cash',   2100.00, null,     null,   '5103', 10.39100000, -75.51440000],
-            [null,    null,     'Plaza de Mercado Sur - Bogotá', 'Almacenes Éxito S.A.',  'pending',    'qr',     3450.00, null,     null,   '7264',  4.71100000, -74.07210000],
-            [null,    null,     'Centro de Abastos - Cali',      'Distribuciones Andina', 'cancelled',  'cash',    780.00, null,     null,   '1902',  3.45160000, -76.53200000],
-            [$route3, $driver3, 'Distribuidora Sur - Medellín',  'Tiendas El Vecino',     'delivered',  'cash',   1675.00, 2000.00, 325.00, '4458',  6.20880000, -75.56600000],
+            [$route1, $driver1, 'Bodega Central - Barranquilla', 'Distribuidora El Éxito', 'in_transit', 'cash',   1250000.00, 1500000.00, 250000.00, '8421', 10.96850000, -74.78130000],
+            [$route1, $driver1, 'Bodega Central - Barranquilla', 'Mercados La Gran Vía',  'delivered',  'qr',      890000.00,  890000.00,   0.00, '3679', 11.00800000, -74.83000000],
+            [$route2, $driver2, 'Mercado Norte - Cartagena',     'Supermercado Buen Día', 'assigned',   'cash',   2100000.00, null,     null,   '5103', 10.39100000, -75.51440000],
+            [null,    null,     'Plaza de Mercado Sur - Bogotá', 'Almacenes Éxito S.A.',  'pending',    'qr',     3450000.00, null,     null,   '7264',  4.71100000, -74.07210000],
+            [null,    null,     'Centro de Abastos - Cali',      'Distribuciones Andina', 'cancelled',  'cash',    780000.00, null,     null,   '1902',  3.45160000, -76.53200000],
+            [$route3, $driver3, 'Distribuidora Sur - Medellín',  'Tiendas El Vecino',     'delivered',  'cash',   1675000.00, 2000000.00, 325000.00, '4458',  6.20880000, -75.56600000],
         ];
 
         foreach ($orders as [$route, $driver, $dest, $client, $status, $method, $amount, $received, $change, $otp, $lat, $lng]) {

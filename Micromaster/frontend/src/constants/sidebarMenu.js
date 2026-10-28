@@ -13,7 +13,6 @@ export const SIDEBAR_MENU = {
       num: '02',
       label: 'OPERACIÓN & LOGÍSTICA',
       items: [
-        { icon: 'box-seam', label: 'Lotes FEFO', desc: 'Vencimiento, proveedor y cantidad', to: '/stock/lotes' },
         { icon: 'box-arrow-in-down', label: 'Entradas de Proveedores', desc: 'Recepción de mercancía', to: '/stock/entradas' },
         { icon: 'truck', label: 'Gestión de Pedidos', desc: 'Órdenes B2B y estados', to: '/orders' },
         { icon: 'geo-alt', label: 'Rutas & Mapa GPS', desc: 'Trazado en vivo de conductores', to: '/delivery' },
@@ -26,7 +25,7 @@ export const SIDEBAR_MENU = {
       label: 'CONTROL DE CAMPO',
       items: [
         { icon: 'exclamation-octagon', label: 'Novedades e Incidencias', desc: 'Alertas de conductores en ruta', to: '/delivery/incidencias' },
-        { icon: 'file-earmark-text', label: 'Reportes de Bodega', desc: 'Estado y alertas de inventario', to: '/stock/alertas' },
+        { icon: 'file-earmark-text', label: 'Reportes de Bodega', desc: 'Movimientos, filtros y exportación', to: '/stock/alertas' },
       ],
     },
   ],
@@ -37,7 +36,7 @@ export const SIDEBAR_MENU = {
       num: '01',
       label: 'PRINCIPAL',
       items: [
-        { icon: 'speedometer2', label: 'Inicio · Tablero de Cocina', desc: 'Tandas programadas para hoy', to: '/cost' },
+        { icon: 'speedometer2', label: 'Inicio · Tablero de Cocina', desc: 'Tandas y órdenes del día', to: '/cost' },
       ],
     },
     {
@@ -45,7 +44,9 @@ export const SIDEBAR_MENU = {
       num: '02',
       label: 'PRODUCCIÓN & RECETAS',
       items: [
-        { icon: 'egg-fried', label: 'Catálogo de Recetas', desc: 'Fórmulas y mermas', to: '/cost/recetas' },
+        { icon: 'egg-fried', label: 'Catálogo de Recetas (BOM)', desc: 'Fórmulas, mermas y costeo', to: '/cost/recetas' },
+        { icon: 'printer', label: 'Nueva Tanda (Orden Papel)', desc: 'Emisión y hoja de alistamiento', to: '/cost/tandas' },
+        { icon: 'check2-square', label: 'Cierre de Producción', desc: 'Consumo real y producto terminado', to: '/cost/cierre' },
         { icon: 'calculator', label: 'Simulador de Escala', desc: 'Kg para producción masiva', to: '/cost/simulador' },
         { icon: 'check2-circle', label: 'Disponibilidad de Insumos', desc: 'Check automático de stock', to: '/cost/insumos' },
       ],
@@ -55,7 +56,7 @@ export const SIDEBAR_MENU = {
       num: '03',
       label: 'CONTROL DE CALIDAD',
       items: [
-        { icon: 'trash3', label: 'Registro de Mermas', desc: 'Mermas e imprevistos de cocina', to: '/cost/recetas' },
+        { icon: 'trash3', label: 'Registro de Mermas', desc: 'Bajas rápidas de desperdicio diario', to: '/cost/mermas' },
       ],
     },
   ],
@@ -66,25 +67,25 @@ export const SIDEBAR_MENU = {
       num: '01',
       label: 'PRINCIPAL',
       items: [
-        { icon: 'speedometer2', label: 'Inicio · Resumen Financiero', desc: 'Ingresos, costos y margen', to: '/reports' },
+        { icon: 'speedometer2', label: 'Inicio · Resumen Financiero', desc: 'Cartera, inventario, COGS y mermas', to: '/reports' },
       ],
     },
     {
       id: 'auditoria',
       num: '02',
-      label: 'AUDITORÍA & CONCILIACIÓN',
+      label: 'CONTABILIDAD & AUDITORÍA',
       items: [
+        { icon: 'boxes', label: 'Valoración de Inventario', desc: 'Cierre contable y congelación de stock', to: '/reports/inventario' },
+        { icon: 'bank', label: 'Conciliación Bancaria y Caja', desc: 'Cruce con extractos bancarios', to: '/reports/pedidos' },
         { icon: 'graph-up-arrow', label: 'Reportes de Ventas B2B', desc: 'Ingresos y cobros confirmados', to: '/reports/ventas' },
-        { icon: 'cash-stack', label: 'Conciliación de Caja & OTP', desc: 'Verificación de dinero recaudado', to: '/reports/pedidos' },
-        { icon: 'boxes', label: 'Valoración de Inventario', desc: 'Costo total del stock en bodega', to: '/reports/inventario' },
       ],
     },
     {
       id: 'exportacion',
       num: '03',
-      label: 'EXPORTACIÓN',
+      label: 'INFORMES & EXCEL',
       items: [
-        { icon: 'download', label: 'Descarga de Informes', desc: 'Exportador masivo en CSV', to: '/reports/exportar' },
+        { icon: 'file-earmark-excel', label: 'Descarga de Informes', desc: 'Kardex, ventas y mermas DIAN', to: '/reports/exportar' },
       ],
     },
   ],
@@ -104,8 +105,8 @@ export const SIDEBAR_MENU = {
       label: 'INVENTARIO & STOCK',
       items: [
         { icon: 'box-seam', label: 'Inventario & Stock', desc: 'Resumen de alertas de bodega', to: '/stock' },
-        { icon: 'calendar2-check', label: 'Lotes FEFO', desc: 'Vencimiento, proveedor y QR', to: '/stock/lotes' },
         { icon: 'box-arrow-in-down', label: 'Entradas de Proveedores', desc: 'Recepción de mercancía', to: '/stock/entradas' },
+        { icon: 'file-earmark-text', label: 'Reportes de Bodega', desc: 'Movimientos, filtros y exportación', to: '/stock/alertas' },
       ],
     },
     {
@@ -114,7 +115,10 @@ export const SIDEBAR_MENU = {
       label: 'PRODUCCIÓN',
       items: [
         { icon: 'gear', label: 'Recetas & Producción', desc: 'Tablero de cocina y stock', to: '/cost' },
-        { icon: 'egg-fried', label: 'Catálogo de Recetas', desc: 'Fórmulas y mermas', to: '/cost/recetas' },
+        { icon: 'egg-fried', label: 'Catálogo de Recetas (BOM)', desc: 'Fórmulas, mermas y costeo', to: '/cost/recetas' },
+        { icon: 'printer', label: 'Nueva Tanda (Orden Papel)', desc: 'Emisión y hoja de alistamiento', to: '/cost/tandas' },
+        { icon: 'check2-square', label: 'Cierre de Producción', desc: 'Consumo real y producto terminado', to: '/cost/cierre' },
+        { icon: 'trash3', label: 'Registro de Mermas', desc: 'Bajas rápidas de planta', to: '/cost/mermas' },
         { icon: 'calculator', label: 'Simulador de Escala', desc: 'Kg para producción masiva', to: '/cost/simulador' },
       ],
     },

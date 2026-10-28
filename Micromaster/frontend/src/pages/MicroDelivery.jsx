@@ -50,6 +50,12 @@ export default function MicroDelivery({ user }) {
   const [paymentMode, setPaymentMode] = useState('normal');
   const [contingencyReason, setContingencyReason] = useState('');
 
+  // Arqueo de caja físico y colapso de OTP
+  const [showOtpSection, setShowOtpSection] = useState(false);
+  const [bills50k, setBills50k] = useState('');
+  const [bills20k, setBills20k] = useState('');
+  const [coinsVal, setCoinsVal] = useState('');
+
   const flash = useCallback((msg) => {
     setToast(msg);
     setTimeout(() => setToast(''), 3200);
@@ -216,6 +222,14 @@ export default function MicroDelivery({ user }) {
     return { collected, pending, confirmed, total: cobroOrders.length };
   }, [cobroOrders]);
 
+  const subtotal50k = (parseInt(bills50k, 10) || 0) * 50000;
+  const subtotal20k = (parseInt(bills20k, 10) || 0) * 20000;
+  const subtotalCoins = parseFloat(coinsVal) || 0;
+  const totalPhysicalCash = subtotal50k + subtotal20k + subtotalCoins;
+  const collectedToday = Number(cajaSummary.collected || 0);
+  const cashDifference = totalPhysicalCash - collectedToday;
+  const hasCashInputs = bills50k !== '' || bills20k !== '' || coinsVal !== '';
+
   if (!canAccess) {
     return (
       <div className="flex items-center justify-center h-full bg-cream">
@@ -240,12 +254,14 @@ export default function MicroDelivery({ user }) {
   if (view === 'incidencias') {
     return (
       <div className="space-y-4 md:space-y-6 animate-fade-in">
-        <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">{meta.title}</h1>
-            <p className="text-sm text-slate-500">{meta.desc}</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900">{meta.title}</h1>
+            <p className="text-xs sm:text-sm text-slate-500">{meta.desc}</p>
           </div>
-          <TechBadge label={meta.badge} color={meta.color} />
+          <div className="self-start sm:self-auto shrink-0">
+            <TechBadge label={meta.badge} color={meta.color} />
+          </div>
         </div>
 
         {toast && (
@@ -254,7 +270,7 @@ export default function MicroDelivery({ user }) {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 md:gap-4">
           <FreshCard title="Novedades abiertas" value={incSummary?.open ?? 0} subtitle="Requieren gestión" icon="exclamation-octagon" color="terracotta" />
           <FreshCard title="Resueltas" value={incSummary?.resolved ?? 0} subtitle="Hoy" icon="check-circle-fill" color="lime" />
           <FreshCard title="Rutas con incidencia" value={routes.filter((r) => (r.open_incidents || 0) > 0).length} subtitle="En operación" icon="signpost-2" color="slate" />
@@ -276,12 +292,14 @@ export default function MicroDelivery({ user }) {
 
   return (
     <div className="space-y-4 md:space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">{meta.title}</h1>
-          <p className="text-sm text-slate-500">{meta.desc}</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900">{meta.title}</h1>
+          <p className="text-xs sm:text-sm text-slate-500">{meta.desc}</p>
         </div>
-        <TechBadge label={meta.badge} color={meta.color} />
+        <div className="self-start sm:self-auto shrink-0">
+          <TechBadge label={meta.badge} color={meta.color} />
+        </div>
       </div>
 
       {toast && (
@@ -290,90 +308,255 @@ export default function MicroDelivery({ user }) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4">
         <FreshCard title="Cobrado Hoy" value={`$${cajaSummary.collected.toLocaleString()}`} subtitle="Completados" icon="cash-coin" color="lime" />
         <FreshCard title="Pendiente" value={`$${cajaSummary.pending.toLocaleString()}`} subtitle="Sin cobrar" icon="hourglass-split" color="terracotta" />
         <FreshCard title="Confirmado" value={`$${cajaSummary.confirmed.toLocaleString()}`} subtitle="Por completar" icon="check-circle-fill" color="cream" />
         <FreshCard title="Total Pedidos" value={cajaSummary.total} subtitle="En caja" icon="box-seam" color="lime" />
       </div>
 
-      <div className="bg-slate-900 rounded-3xl overflow-hidden">
-        <div className="px-4 md:px-6 py-4 border-b border-white/10">
-          <span className="text-sm uppercase tracking-[0.2em] text-lime-400 font-semibold">
-            <i className="bi bi-phone" aria-hidden="true" /> Cobro OTP y registro de pagos
-          </span>
-        </div>
-
-        <div className="px-4 md:px-6 py-4 md:py-6 text-white">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-xs uppercase tracking-wider text-white/70 mb-3">Verificación de Código OTP</h3>
-              <div className="flex gap-2 flex-wrap">
-                <input
-                  type="text"
-                  value={otpCode}
-                  onChange={(e) => { setOtpCode(e.target.value.toUpperCase()); setOtpResult(null); }}
-                  placeholder="Ingrese código OTP"
-                  maxLength={4}
-                  className="flex-1 min-w-[140px] px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white text-center text-lg font-mono focus:ring-2 focus:ring-lime-400 outline-none"
-                />
+      {/* MÓDULO PRINCIPAL: ARQUEO DE CAJA FÍSICO Y BYPASS / PAGO MANUAL */}
+      <div className="bg-slate-900 rounded-2xl sm:rounded-3xl overflow-hidden shadow-xl border border-white/5">
+            <div className="px-4 md:px-6 py-4 border-b border-white/10 flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-lime-400 animate-ping" />
+                <span className="text-sm uppercase tracking-[0.2em] text-lime-400 font-bold flex items-center gap-2">
+                  <i className="bi bi-cash-stack" aria-hidden="true" /> Arqueo de Caja Físico & Pago Manual (Bypass)
+                </span>
+              </div>
+              {canBypass && (
                 <button
-                  onClick={handleVerifyOtp}
-                  disabled={!canCreate}
-                  className="bg-lime-400 hover:bg-lime-500 text-slate-900 px-4 py-3 rounded-xl font-bold text-sm disabled:opacity-40"
+                  onClick={() => openPayment(null, 'contingency')}
+                  className="bg-lime-400 hover:bg-lime-500 text-slate-900 px-4 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-2 shadow-sm"
                 >
-                  Verificar
+                  <i className="bi bi-shield-check text-sm" aria-hidden="true" /> Registrar Pago Manual (Bypass)
                 </button>
-                {canBypass && (
-                  <button
-                    onClick={() => openPayment(null, 'contingency')}
-                    className="bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-3 rounded-xl font-bold text-sm transition-all"
-                  >
-                    <i className="bi bi-shield-exclamation" aria-hidden="true" /> Bypass / Pago Manual
-                  </button>
+              )}
+            </div>
+
+            <div className="p-4 md:p-6 text-white space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* Tabla de Arqueo Físico de Billetes */}
+                <div className="lg:col-span-7 bg-white/5 rounded-2xl p-4 border border-white/10">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-xs uppercase tracking-wider text-lime-400 font-bold flex items-center gap-1.5">
+                      <i className="bi bi-table" aria-hidden="true" /> Mesa de Conteo de Efectivo
+                    </h3>
+                    <span className="text-[11px] text-white/50">Digita lo recibido por el conductor</span>
+                  </div>
+
+                  <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+                    <table className="w-full text-left text-xs min-w-[320px] sm:min-w-full">
+                      <thead>
+                        <tr className="border-b border-white/10 text-white/50 uppercase tracking-wider text-[10px]">
+                          <th className="pb-2 font-semibold">Denominación</th>
+                          <th className="pb-2 font-semibold text-center">Billetes</th>
+                          <th className="pb-2 font-semibold text-right">Subtotal</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        <tr>
+                          <td className="py-2.5 font-medium flex items-center gap-1.5 sm:gap-2">
+                            <span className="px-1.5 sm:px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono text-[10px] sm:text-[11px] font-bold">$50.000</span>
+                            <span className="text-[11px] sm:text-xs"><span className="hidden sm:inline">Billetes </span>$50.000</span>
+                          </td>
+                          <td className="py-2.5 text-center">
+                            <input
+                              type="number"
+                              min="0"
+                              placeholder="0"
+                              value={bills50k}
+                              onChange={(e) => setBills50k(e.target.value)}
+                              className="w-16 sm:w-24 px-2 sm:px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-center font-mono text-white text-xs outline-none focus:ring-2 focus:ring-lime-400"
+                            />
+                          </td>
+                          <td className="py-2.5 text-right font-mono font-bold text-white/90">
+                            ${subtotal50k.toLocaleString()}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-2.5 font-medium flex items-center gap-1.5 sm:gap-2">
+                            <span className="px-1.5 sm:px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 font-mono text-[10px] sm:text-[11px] font-bold">$20.000</span>
+                            <span className="text-[11px] sm:text-xs"><span className="hidden sm:inline">Billetes </span>$20.000</span>
+                          </td>
+                          <td className="py-2.5 text-center">
+                            <input
+                              type="number"
+                              min="0"
+                              placeholder="0"
+                              value={bills20k}
+                              onChange={(e) => setBills20k(e.target.value)}
+                              className="w-16 sm:w-24 px-2 sm:px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-center font-mono text-white text-xs outline-none focus:ring-2 focus:ring-lime-400"
+                            />
+                          </td>
+                          <td className="py-2.5 text-right font-mono font-bold text-white/90">
+                            ${subtotal20k.toLocaleString()}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="py-2.5 font-medium flex items-center gap-1.5 sm:gap-2">
+                            <span className="px-1.5 sm:px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-mono text-[10px] sm:text-[11px] font-bold">Moneda</span>
+                            <span className="text-[11px] sm:text-xs">Sencillo</span>
+                          </td>
+                          <td className="py-2.5 text-center">
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder="Valor $"
+                              value={coinsVal}
+                              onChange={(e) => setCoinsVal(e.target.value)}
+                              className="w-16 sm:w-24 px-2 sm:px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-center font-mono text-white text-xs outline-none focus:ring-2 focus:ring-lime-400"
+                            />
+                          </td>
+                          <td className="py-2.5 text-right font-mono font-bold text-white/90">
+                            ${subtotalCoins.toLocaleString()}
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tfoot>
+                        <tr className="border-t border-white/20 font-bold">
+                          <td colSpan={2} className="pt-3 text-white/70 uppercase tracking-wider text-[11px]">
+                            Total Físico en Mesa:
+                          </td>
+                          <td className="pt-3 text-right font-mono text-sm text-lime-400">
+                            ${totalPhysicalCash.toLocaleString()}
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Cruce contra Cobrado Hoy y Descuadre en Tiempo Real */}
+                <div className="lg:col-span-5 space-y-4">
+                  <div className="bg-white/5 rounded-2xl p-4 border border-white/10 space-y-3">
+                    <h3 className="text-xs uppercase tracking-wider text-white/70 font-bold">
+                      Cruce de Arqueo en Tiempo Real
+                    </h3>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between items-center text-white/70">
+                        <span>Cobrado Hoy (Registrado):</span>
+                        <span className="font-mono font-bold text-white">${collectedToday.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-white/70">
+                        <span>Total Físico en Mesa:</span>
+                        <span className="font-mono font-bold text-lime-400">${totalPhysicalCash.toLocaleString()}</span>
+                      </div>
+                    </div>
+
+                    {/* Semáforo de Descuadre */}
+                    <div className="pt-2">
+                      {!hasCashInputs ? (
+                        <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-white/50 text-[11px]">
+                          Digita las denominaciones recibidas para calcular el arqueo.
+                        </div>
+                      ) : cashDifference === 0 ? (
+                        <div className="p-3.5 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-bold text-xs flex items-center gap-2">
+                          <i className="bi bi-check-circle-fill text-emerald-400 text-base" aria-hidden="true" />
+                          <div>
+                            <p>¡Cuadre de Caja Exacto!</p>
+                            <p className="text-[10px] text-emerald-400/80 font-normal">Diferencia $0.00 · Todo coincide</p>
+                          </div>
+                        </div>
+                      ) : cashDifference < 0 ? (
+                        <div className="p-3.5 rounded-xl bg-red-500/20 border border-red-500/40 text-red-300 font-bold text-xs flex items-center gap-2">
+                          <i className="bi bi-exclamation-octagon-fill text-red-400 text-base" aria-hidden="true" />
+                          <div>
+                            <p>Faltante en Caja: -${Math.abs(cashDifference).toLocaleString()}</p>
+                            <p className="text-[10px] text-red-300/80 font-normal">El físico entregado es menor a lo cobrado.</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-3.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-200 font-bold text-xs flex items-center gap-2">
+                          <i className="bi bi-info-circle-fill text-amber-400 text-base" aria-hidden="true" />
+                          <div>
+                            <p>Sobrante en Caja: +${cashDifference.toLocaleString()}</p>
+                            <p className="text-[10px] text-amber-200/80 font-normal">El físico entregado supera lo registrado.</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Registro si hay pedido seleccionado */}
+                  {selectedOrder && (
+                    <div className="bg-white/5 rounded-2xl p-4 border border-white/10 space-y-2">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-white/70">Pedido #{selectedOrder.id}</span>
+                        <span className="font-bold text-lime-400">${selectedOrder.amount}</span>
+                      </div>
+                      <p className="text-[11px] text-white/50 truncate">{selectedOrder.destination}</p>
+                      <div className="flex gap-2 pt-1">
+                        {canUpdate && (
+                          <button onClick={() => handleUpdatePayment('cash')} className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900 py-2 rounded-xl text-xs font-bold transition-all">
+                            <i className="bi bi-cash-coin" aria-hidden="true" /> Efectivo
+                          </button>
+                        )}
+                        {canUpdate && (
+                          <button onClick={() => handleUpdatePayment('qr')} className="flex-1 bg-terracotta-400 hover:bg-terracotta-500 text-white py-2 rounded-xl text-xs font-bold transition-all">
+                            <i className="bi bi-phone" aria-hidden="true" /> QR
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* SECCIÓN SECUNDARIA COLAPSADA: INGRESO DE OTP */}
+              <div className="pt-4 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setShowOtpSection((prev) => !prev)}
+                  className="w-full flex items-center justify-between p-3.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold uppercase tracking-wider text-white transition-all"
+                >
+                  <span className="flex items-center gap-2 text-white/80">
+                    <i className="bi bi-shield-lock text-sm text-lime-400" aria-hidden="true" />
+                    Seguridad Avanzada: Verificación de Código OTP (Excepciones)
+                  </span>
+                  <span className="text-lime-400 text-[11px] font-bold">
+                    {showOtpSection ? 'Colapsar ▲' : 'Desplegar ▼'}
+                  </span>
+                </button>
+
+                {showOtpSection && (
+                  <div className="mt-3 p-4 rounded-2xl bg-white/5 border border-white/10 animate-fade-in space-y-3">
+                    <p className="text-xs text-white/60">
+                      Usa esta opción solo para pedidos que requieran validación criptográfica OTP por excepción de protocolo.
+                    </p>
+                    <div className="flex gap-2 flex-wrap">
+                      <input
+                        type="text"
+                        value={otpCode}
+                        onChange={(e) => { setOtpCode(e.target.value.toUpperCase()); setOtpResult(null); }}
+                        placeholder="Código OTP (4 dígitos)"
+                        maxLength={4}
+                        className="w-48 px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white text-center text-sm font-mono focus:ring-2 focus:ring-lime-400 outline-none tracking-widest"
+                      />
+                      <button
+                        onClick={handleVerifyOtp}
+                        disabled={!canCreate}
+                        className="bg-lime-400 hover:bg-lime-500 text-slate-900 px-4 py-2.5 rounded-xl font-bold text-xs disabled:opacity-40"
+                      >
+                        Verificar OTP
+                      </button>
+                    </div>
+                    {otpResult && (
+                      <div className={`mt-2 p-3 rounded-xl text-xs ${otpResult.valid ? 'bg-lime-400/20 border border-lime-400/30' : 'bg-red-500/20 border border-red-500/30'}`}>
+                        <p className={`font-bold ${otpResult.valid ? 'text-lime-400' : 'text-red-400'}`}>
+                          {otpResult.valid ? (
+                            <><i className="bi bi-check-circle-fill" aria-hidden="true" /> Pedido #{otpResult.order?.id} — ${otpResult.order?.amount}</>
+                          ) : (
+                            <><i className="bi bi-x-lg" aria-hidden="true" /> Código OTP no válido</>
+                          )}
+                        </p>
+                        {otpResult.valid && <p className="text-[11px] text-white/70 mt-1">Destino: {otpResult.order?.destination}</p>}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
-              {otpResult && (
-                <div className={`mt-3 p-4 rounded-xl ${otpResult.valid ? 'bg-lime-400/20 border border-lime-400/30' : 'bg-red-500/20 border border-red-500/30'}`}>
-                  <p className={`font-bold ${otpResult.valid ? 'text-lime-400' : 'text-red-400'}`}>
-                    {otpResult.valid ? (
-                      <><i className="bi bi-check-circle-fill" aria-hidden="true" /> Pedido #{otpResult.order?.id} — ${otpResult.order?.amount}</>
-                    ) : (
-                      <><i className="bi bi-x-lg" aria-hidden="true" /> Código OTP no válido</>
-                    )}
-                  </p>
-                  {otpResult.valid && <p className="text-xs text-white/70 mt-1">Destino: {otpResult.order?.destination}</p>}
-                </div>
-              )}
-            </div>
-
-            <div>
-              <h3 className="text-xs uppercase tracking-wider text-white/70 mb-3">Registro de Cobro</h3>
-              {selectedOrder ? (
-                <div className="space-y-3">
-                  <div className="bg-white/10 rounded-xl p-3">
-                    <p className="text-xs text-white/70">Pedido #{selectedOrder.id}</p>
-                    <p className="text-lg font-bold">${selectedOrder.amount}</p>
-                    <p className="text-xs text-white/70">{selectedOrder.destination}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    {canUpdate && (
-                      <button onClick={() => handleUpdatePayment('cash')} className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900 py-2 rounded-xl text-xs font-bold transition-all">
-                        <i className="bi bi-cash-coin" aria-hidden="true" /> Efectivo
-                      </button>
-                    )}
-                    {canUpdate && (
-                      <button onClick={() => handleUpdatePayment('qr')} className="flex-1 bg-terracotta-400 hover:bg-terracotta-500 text-white py-2 rounded-xl text-xs font-bold transition-all">
-                        <i className="bi bi-phone" aria-hidden="true" /> QR
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <p className="text-xs text-white/50">Selecciona un pedido pendiente de cobro.</p>
-              )}
-            </div>
-          </div>
 
           <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {cobroOrders.map((order) => (

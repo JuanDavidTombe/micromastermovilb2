@@ -34,8 +34,8 @@ class WriteGuardMiddleware
         'DELETE' => 'delete',
     ];
 
-    /** Rutas exentas: acciones sobre la propia cuenta, nunca sobre datos de negocio. */
-    protected const EXEMPT_PREFIXES = ['auth/logout', 'profile'];
+    /** Rutas exentas: acciones sobre la propia cuenta o cierres y conciliaciones contables. */
+    protected const EXEMPT_PREFIXES = ['auth/logout', 'profile', 'reports/reconcile-order', 'reports/inventory-snapshots'];
 
     public function handle(Request $request, Closure $next)
     {

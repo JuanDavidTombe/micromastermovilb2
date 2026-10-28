@@ -1,0 +1,48 @@
+[
+    {
+        "id": "ROUTE-ARIVAS-1",
+        "driver_name": "Andrés Rivas Castañeda",
+        "vehicle": "Camión Chevrolet NPR – JKP 482",
+        "order_number": "PED-2026-104",
+        "customer_name": "Distribuidora El Éxito",
+        "status": "IN_PROGRESS",
+        "items": [
+            {
+                "id": "PICK-01",
+                "product_name": "Aceite Vegetal",
+                "sku": "ACE-VEG-01",
+                "target_quantity": 12,
+                "picked_quantity": 0,
+                "unit": "Cajas",
+                "location": {
+                    "aisle": "PASILLO 2",
+                    "shelf": "ESTANTE A",
+                    "banner": "📍 PASILLO 2 - ESTANTE A"
+                },
+                "fefo_target_batch": "LOTE-2026-08",
+                "fefo_target_expiry": "28\/10",
+                "fefo_rule_hint": "Saca el lote VENCE 28\/10",
+                "barcode_correct": "7701234001",
+                "barcode_wrong_fefo": "7701234099"
+            },
+            {
+                "id": "PICK-02",
+                "product_name": "Arroz Graneado",
+                "sku": "ARR-GRA-01",
+                "target_quantity": 20,
+                "picked_quantity": 0,
+                "unit": "Pacas",
+                "location": {
+                    "aisle": "PASILLO 1",
+                    "shelf": "ESTIBA B",
+                    "banner": "📍 PASILLO 1 - ESTIBA B"
+                },
+                "fefo_target_batch": "LOTE-2026-12",
+                "fefo_target_expiry": "05\/11",
+                "fefo_rule_hint": "Saca el lote VENCE 05\/11",
+                "barcode_correct": "7701234002",
+                "barcode_wrong_fefo": "7701234098"
+            }
+        ]
+    }
+]

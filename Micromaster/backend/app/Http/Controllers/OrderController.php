@@ -53,6 +53,80 @@ class OrderController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/orders/bulk-release
+     * Asignación masiva de pedidos a una ruta y liberación para picking en bodega.
+     */
+    public function bulkRelease(Request $request)
+    {
+        if (! $this->checkModule('orders_delivery') || ! $this->canUpdate()) {
+            return $this->forbidden();
+        }
+
+        $data = $request->validate([
+            'order_ids' => 'required|array|min:1',
+            'order_ids.*' => 'integer|exists:orders,id',
+            'route_id' => 'required|integer|exists:routes,id',
+        ]);
+
+        $route = Route::with('driver')->findOrFail($data['route_id']);
+        $orders = Order::whereIn('id', $data['order_ids'])->get();
+
+        foreach ($orders as $order) {
+            $order->route_id = $route->id;
+            $order->driver_id = $route->driver_id;
+            $order->status = 'assigned';
+            $order->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => count($orders) . " pedidos asignados a la ruta {$route->route_code} y liberados para picking en bodega.",
+            'count' => count($orders),
+            'route' => $route,
+        ]);
+    }
+
+    /**
+     * POST /api/orders/simulate-intake
+     * Simula la ingesta automática de pedidos B2B del día siguiente (portal de clientes / app de ventas).
+     */
+    public function simulateIntake(Request $request)
+    {
+        if (! $this->checkModule('orders_delivery') || ! $this->canCreate()) {
+            return $this->forbidden();
+        }
+
+        $b2bClients = [
+            ['client' => 'Supermercados La 14', 'dest' => 'Calle 18 # 122-135, Cali', 'amount' => 1450000, 'method' => 'qr'],
+            ['client' => 'Restaurante El Rancho Campestre', 'dest' => 'Carrera 9 # 18N-45, Popayán', 'amount' => 890000, 'method' => 'cash'],
+            ['client' => 'Almacenes Éxito Centro', 'dest' => 'Carrera 4 # 10-20, Popayán', 'amount' => 3200000, 'method' => 'qr'],
+            ['client' => 'Distribuidora Avícola del Sur', 'dest' => 'Zona Franca Lote 4, Palmira', 'amount' => 2100000, 'method' => 'cash'],
+            ['client' => 'Comidas Rápidas El Paisa B2B', 'dest' => 'Calle 5 # 38-12, Cali', 'amount' => 640000, 'method' => 'cash'],
+        ];
+
+        $created = [];
+        foreach ($b2bClients as $c) {
+            $created[] = Order::create([
+                'client_name' => $c['client'],
+                'destination' => $c['dest'],
+                'amount' => $c['amount'],
+                'payment_method' => $c['method'],
+                'route_id' => null,
+                'driver_id' => null,
+                'status' => 'pending',
+                'payment_status' => 'pending',
+                'otp_code' => $this->generateOtp(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => count($created) . ' pedidos sincronizados automáticamente desde el canal B2B para la demanda de mañana.',
+            'created_count' => count($created),
+        ], 201);
+    }
+
     public function store(Request $request)
     {
         if (! $this->checkModule('orders_delivery') || ! $this->canCreate()) {

@@ -14,6 +14,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import PendingApproval from './pages/PendingApproval';
 import { getDefaultRoute, hasModuleAccess, hasReadAccess } from './constants/roles';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const ROUTE_MODULES = {
   '/': 'dashboard',
@@ -24,6 +25,9 @@ const ROUTE_MODULES = {
   '/stock/alertas': 'inventory_stock',
   '/cost': 'recipes_production',
   '/cost/recetas': 'recipes_production',
+  '/cost/tandas': 'recipes_production',
+  '/cost/cierre': 'recipes_production',
+  '/cost/mermas': 'recipes_production',
   '/cost/simulador': 'recipes_production',
   '/cost/insumos': 'recipes_production',
   '/orders': 'orders_delivery',
@@ -43,6 +47,7 @@ function AuthenticatedApp({ user, setUser }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [moduleKey, setModuleKey] = useState(0);
   const mainRef = useRef(null);
 
   const role = user?.role || 'ADMINISTRADOR';
@@ -99,6 +104,7 @@ function AuthenticatedApp({ user, setUser }) {
       <div className="flex-1 flex flex-col lg:ml-64 min-w-0">
         <Topbar user={user} onMenuToggle={() => setSidebarOpen((v) => !v)} onProfileUpdated={handleProfileUpdated} />
         <main ref={mainRef} className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden p-3 md:p-6 bg-cream dark:bg-slate-900 transition-colors">
+          <ErrorBoundary key={`${location.pathname}-${moduleKey}`} onReload={() => setModuleKey((k) => k + 1)}>
           <Routes>
             {hasModuleAccess(role, 'dashboard') && (
               <Route path="/" element={<Dashboard user={user} />} />
@@ -107,7 +113,7 @@ function AuthenticatedApp({ user, setUser }) {
             {hasReadAccess(role, 'inventory_stock') && (
               <>
                 <Route path="/stock" element={<MicroStock user={user} />} />
-                <Route path="/stock/lotes" element={<MicroStock user={user} />} />
+                <Route path="/stock/lotes" element={<Navigate to="/stock" replace />} />
                 <Route path="/stock/entradas" element={<MicroStock user={user} />} />
                 <Route path="/stock/qr" element={<MicroStock user={user} />} />
                 <Route path="/stock/alertas" element={<MicroStock user={user} />} />
@@ -118,6 +124,9 @@ function AuthenticatedApp({ user, setUser }) {
               <>
                 <Route path="/cost" element={<MicroCost user={user} />} />
                 <Route path="/cost/recetas" element={<MicroCost user={user} />} />
+                <Route path="/cost/tandas" element={<MicroCost user={user} />} />
+                <Route path="/cost/cierre" element={<MicroCost user={user} />} />
+                <Route path="/cost/mermas" element={<MicroCost user={user} />} />
                 <Route path="/cost/simulador" element={<MicroCost user={user} />} />
                 <Route path="/cost/insumos" element={<MicroCost user={user} />} />
               </>
@@ -151,6 +160,7 @@ function AuthenticatedApp({ user, setUser }) {
 
             <Route path="*" element={<Navigate to={getDefaultRoute(role)} replace />} />
           </Routes>
+          </ErrorBoundary>
         </main>
       </div>
     </div>

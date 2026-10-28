@@ -18,10 +18,12 @@ class Recipe extends Model
         'waste_percentage' => 'decimal:2',
     ];
 
+    protected $appends = ['total_cost'];
+
     public function ingredients()
     {
         return $this->belongsToMany(Ingredient::class, 'recipe_ingredient')
-            ->withPivot('quantity', 'unit_cost')
+            ->withPivot('quantity', 'unit', 'unit_cost')
             ->withTimestamps();
     }
 

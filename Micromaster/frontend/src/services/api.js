@@ -46,22 +46,40 @@ export const cost = {
   deleteRecipe: (id) => api.delete(`/cost/recipes/${id}`),
   simulateScale: (data) => api.post('/cost/simulate-scale', data),
   getIngredients: () => api.get('/cost/ingredients'),
+  // Fase 2 & 3: Órdenes de Producción / Tandas
+  getProductionOrders: (params) => api.get('/cost/production-orders', { params }),
+  createProductionOrder: (data) => api.post('/cost/production-orders', data),
+  getProductionOrder: (id) => api.get(`/cost/production-orders/${id}`),
+  closeProductionOrder: (id, data) => api.post(`/cost/production-orders/${id}/close`, data),
+  // Fase 4: Ajuste de Mermas de Planta
+  getFloorWastes: () => api.get('/cost/floor-waste'),
+  storeFloorWaste: (data) => api.post('/cost/floor-waste', data),
 };
 
 export const stock = {
+  getInventorySummary: () => api.get('/inventory/summary'),
   getBatches: (params) => api.get('/stock/batches', { params }),
   createBatch: (data) => api.post('/stock/batches', data),
   blockBatch: (id, data) => api.patch(`/stock/batches/${id}/block`, data),
+  getPurchaseOrders: () => api.get('/stock/purchase-orders'),
   getPurchaseOrder: (code) => api.get(`/stock/purchase-orders/${code}`),
+  receptionMatch: (data) => api.post('/stock/reception-match', data),
   getAlerts: () => api.get('/stock/alerts'),
   getIngredientStock: () => api.get('/stock/ingredients'),
   createEntry: (data) => api.post('/stock/entry', data),
   createExit: (data) => api.post('/stock/exit', data),
+  getMovements: (params) => api.get('/stock/movements', { params }),
   qrScan: (data) => api.post('/stock/qr-scan', data),
 };
 
 export const reports = {
   get: () => api.get('/reports'),
+  getFinancialKpis: () => api.get('/reports/financial-kpis'),
+  getInventoryValuation: () => api.get('/reports/inventory-valuation'),
+  closeInventorySnapshot: (data) => api.post('/reports/inventory-snapshots', data),
+  getBankReconciliation: () => api.get('/reports/bank-reconciliation'),
+  reconcileOrder: (id, data) => api.post(`/reports/reconcile-order/${id}`, data),
+  exportFiltered: (params) => api.get('/reports/export-filtered', { params, responseType: 'blob' }),
   costs: () => api.get('/reports/costs'),
   stock: () => api.get('/reports/stock'),
   orders: () => api.get('/reports/orders'),
@@ -91,6 +109,8 @@ export const delivery = {
 export const orders = {
   list: (params) => api.get('/orders', { params }),
   create: (data) => api.post('/orders', data),
+  bulkRelease: (data) => api.post('/orders/bulk-release', data),
+  simulateIntake: () => api.post('/orders/simulate-intake'),
   get: (id) => api.get(`/orders/${id}`),
   update: (id, data) => api.patch(`/orders/${id}`, data),
   remove: (id) => api.delete(`/orders/${id}`),

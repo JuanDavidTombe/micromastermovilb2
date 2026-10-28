@@ -1,0 +1,22 @@
+[
+    {
+        "order_code": "OC-1024",
+        "title": "Orden #1024 - Pollos Santa María",
+        "supplier_name": "Pollos Santa María",
+        "truck_plate": "T-982",
+        "driver": "Jairo Morales",
+        "default_tare_per_crate": 1.8,
+        "status": "DESCARGANDO",
+        "items_weighed": []
+    },
+    {
+        "order_code": "OC-1025",
+        "title": "Orden #1025 - Harinas del Valle S.A.",
+        "supplier_name": "Harinas del Valle S.A.",
+        "truck_plate": "WTL-441",
+        "driver": "Gustavo Gómez",
+        "default_tare_per_crate": 2,
+        "status": "EN_ESPERA",
+        "items_weighed": []
+    }
+]
